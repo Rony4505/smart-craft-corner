@@ -333,10 +333,24 @@ export async function listCategories(): Promise<Category[]> {
   return store.categories;
 }
 
+function normalizeCategory(cat: Category): Category {
+  const imageUrl = cat.imageUrl?.trim();
+  return {
+    slug: cat.slug.trim(),
+    title: cat.title?.trim() || cat.titleBn?.trim() || "Category",
+    titleBn: cat.titleBn?.trim() || cat.title?.trim() || "ক্যাটাগরি",
+    subtitle: cat.subtitle ?? "",
+    accent: cat.accent || "from-[#f5e8dc] via-[#fffaf6] to-[#ead5c3]",
+    description: cat.description ?? "",
+    imageUrl: imageUrl || undefined,
+  };
+}
+
 export async function updateCategories(incoming: Category[]): Promise<Category[]> {
   const store = await ensureStore();
   const merged = [...store.categories];
-  for (const cat of incoming) {
+  for (const cat of incoming.map(normalizeCategory)) {
+    if (!cat.slug) continue;
     const index = merged.findIndex((item) => item.slug === cat.slug);
     if (index >= 0) merged[index] = { ...merged[index], ...cat };
     else merged.push(cat);

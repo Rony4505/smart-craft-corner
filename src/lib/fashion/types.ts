@@ -10,6 +10,8 @@ export type Category = {
   subtitle: string;
   accent: string;
   description: string;
+  /** Circular image shown on home / collections. Set by admin. */
+  imageUrl?: string;
 };
 
 export type DeliveryRule = {

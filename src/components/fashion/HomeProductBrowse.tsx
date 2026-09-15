@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { CategoryCircle, CategoryCircleRow } from "@/components/fashion/CategoryCircle";
 import { ProductGrid } from "@/components/fashion/ProductGrid";
 import { VisibleSelect } from "@/components/fashion/VisibleSelect";
 import { getEffectivePrice } from "@/lib/fashion/pricing";
@@ -140,6 +141,22 @@ export function HomeProductBrowse({
   const [offerSort, setOfferSort] = useState<PriceSort>("default");
   const [page, setPage] = useState(1);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const fromUrl = params.get("category") || "";
+    if (fromUrl) setCategorySlug(fromUrl);
+  }, []);
+
+  function selectCategory(slug: string) {
+    setCategorySlug(slug);
+    setPage(1);
+    const url = new URL(window.location.href);
+    if (slug) url.searchParams.set("category", slug);
+    else url.searchParams.delete("category");
+    url.hash = "products";
+    window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+  }
+
   const categoryProducts = useMemo(() => {
     const filtered = categorySlug
       ? products.filter((p) => p.categorySlug === categorySlug)
@@ -154,14 +171,37 @@ export function HomeProductBrowse({
 
   return (
     <>
-      <section className="border-b border-black/5 bg-[#f3f1ef]">
-        <div className="mx-auto max-w-7xl px-5 py-14 md:px-8 md:py-20">
+      <section className="border-b border-black/5 bg-[#f4f5f7]">
+        <div className="mx-auto max-w-7xl px-5 py-8 md:px-8 md:py-10">
+          <h2 className="text-lg font-extrabold tracking-wide text-[#1f1f1f] md:text-xl">
+            {fc.home.categoryTitle}
+          </h2>
+          <div className="mt-5">
+            <CategoryCircleRow>
+              <CategoryCircle
+                label={fc.search.allCategories}
+                selected={!categorySlug}
+                onClick={() => selectCategory("")}
+              />
+              {categories.map((cat) => (
+                <CategoryCircle
+                  key={cat.slug}
+                  label={cat.titleBn || cat.title}
+                  imageUrl={cat.imageUrl}
+                  selected={categorySlug === cat.slug}
+                  onClick={() => selectCategory(cat.slug)}
+                />
+              ))}
+            </CategoryCircleRow>
+          </div>
+        </div>
+      </section>
+
+      <section id="products" className="border-b border-black/5 bg-white">
+        <div className="mx-auto max-w-7xl px-5 py-10 md:px-8 md:py-14">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="text-sm font-medium uppercase tracking-[0.28em] text-[#9b7766]">
-                {fc.home.categoryTitle}
-              </p>
-              <h2 className="mt-2 font-[family-name:var(--font-display)] text-3xl font-bold md:text-4xl">
+              <h2 className="font-[family-name:var(--font-display)] text-3xl font-bold md:text-4xl">
                 {selectedCategory ? selectedCategory.titleBn : fc.home.allProducts}
               </h2>
               <p className="mt-2 text-sm text-[#6e5449]">{fc.home.categoryHint}</p>
@@ -175,40 +215,6 @@ export function HomeProductBrowse({
             />
           </div>
 
-          <div className="mt-6 flex gap-2 overflow-x-auto pb-1">
-            <button
-              type="button"
-              onClick={() => {
-                setCategorySlug("");
-                setPage(1);
-              }}
-              className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition ${
-                !categorySlug
-                  ? "bg-[#8f624e] text-white shadow-md"
-                  : "border-2 border-[#8f624e]/50 bg-[#f3ebe4] text-[#1c1412] hover:bg-[#ebe0d6]"
-              }`}
-            >
-              {fc.search.allCategories}
-            </button>
-            {categories.map((cat) => (
-              <button
-                key={cat.slug}
-                type="button"
-                onClick={() => {
-                  setCategorySlug(cat.slug);
-                  setPage(1);
-                }}
-                className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition ${
-                  categorySlug === cat.slug
-                    ? "bg-[#8f624e] text-white shadow-md"
-                    : "border-2 border-[#8f624e]/50 bg-[#f3ebe4] text-[#1c1412] hover:bg-[#ebe0d6]"
-                }`}
-              >
-                {cat.titleBn}
-              </button>
-            ))}
-          </div>
-
           <div className="mt-8">
             <ProductGrid products={pageItems} />
           </div>
@@ -217,7 +223,7 @@ export function HomeProductBrowse({
             totalPages={totalPages}
             onChange={(n) => {
               setPage(n);
-              window.scrollTo({ top: 400, behavior: "smooth" });
+              document.getElementById("products")?.scrollIntoView({ behavior: "smooth" });
             }}
           />
         </div>

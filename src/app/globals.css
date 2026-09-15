@@ -35,6 +35,14 @@ html {
   scroll-behavior: smooth;
 }
 
+.category-scroll {
+  scrollbar-width: none;
+}
+
+.category-scroll::-webkit-scrollbar {
+  display: none;
+}
+
 body {
   margin: 0;
   background: var(--mist);

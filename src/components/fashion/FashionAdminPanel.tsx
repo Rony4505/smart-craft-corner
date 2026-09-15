@@ -125,6 +125,9 @@ export function FashionAdminPanel() {
   const [offersSearch, setOffersSearch] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
   const bannerFileRef = useRef<HTMLInputElement>(null);
+  const categoryFileRef = useRef<HTMLInputElement>(null);
+  const categoryUploadSlugRef = useRef("");
+  const [categoryUploadSlug, setCategoryUploadSlug] = useState("");
 
   async function load() {
     const safeFetch = async (url: string) => {
@@ -318,6 +321,7 @@ export function FashionAdminPanel() {
         subtitle: "",
         accent: "from-[#f5e8dc] via-[#fffaf6] to-[#ead5c3]",
         description: "",
+        imageUrl: "",
       };
       const updatedCategories = categories.some((c) => c.slug === cat.slug)
         ? categories
@@ -355,7 +359,7 @@ export function FashionAdminPanel() {
     await load();
   }
 
-  async function handleUpload(file: File, target: "product" | "banner", bannerId?: string) {
+  async function handleUpload(file: File, target: "product" | "banner" | "category", bannerId?: string) {
     setUploading(true);
     const fd = new FormData();
     fd.append("file", file);
@@ -366,6 +370,15 @@ export function FashionAdminPanel() {
     if (target === "product") setForm((c) => ({ ...c, imageUrl: data.url }));
     else if (target === "banner" && settings && bannerId) {
       setSettings({ ...settings, promoBanners: (settings.promoBanners ?? []).map((b) => b.id === bannerId ? { ...b, imageUrl: data.url } : b) });
+    } else if (target === "category" && bannerId) {
+      const next = categories.map((c) => (c.slug === bannerId ? { ...c, imageUrl: data.url } : c));
+      setCategories(next);
+      await fetch("/api/fashion/categories", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ categories: next }),
+      });
+      showSuccess("সফল!", "ক্যাটাগরি ইমেজ সেভ হয়েছে", "sage");
     }
   }
 
@@ -379,8 +392,23 @@ export function FashionAdminPanel() {
     const cat: Category = {
       slug: `cat-${Date.now()}`, title: "New Category", titleBn: "নতুন ক্যাটাগরি",
       subtitle: "", accent: "from-[#f5e8dc] via-[#fffaf6] to-[#ead5c3]", description: "",
+      imageUrl: "",
     };
     setCategories([...categories, cat]);
+  }
+
+  function updateCategory(slug: string, patch: Partial<Category>) {
+    setCategories((list) => list.map((c) => (c.slug === slug ? { ...c, ...patch } : c)));
+  }
+
+  async function removeCategoryImage(slug: string) {
+    const next = categories.map((c) => (c.slug === slug ? { ...c, imageUrl: "" } : c));
+    setCategories(next);
+    await fetch("/api/fashion/categories", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ categories: next }),
+    });
   }
 
   async function removeCategory(slug: string) {
@@ -678,12 +706,61 @@ export function FashionAdminPanel() {
                   className={`rounded-full px-3 py-1 text-xs font-semibold ${selectedCategorySlug === c.slug ? "bg-[#b5d4b5]" : "bg-white/70"}`}>{c.titleBn}</button>
               ))}
             </div>
-            <div className="mt-4 max-h-48 space-y-2 overflow-y-auto">
-              {filteredCategories.map((cat, i) => (
-                <div key={cat.slug} className="grid gap-2 rounded-xl border border-black/6 bg-white/80 p-3 md:grid-cols-[1fr_auto]">
-                  <div className="grid gap-2 md:grid-cols-2">
-                    <input className="field" value={cat.titleBn} onChange={(e) => { const n = [...categories]; n[i] = { ...cat, titleBn: e.target.value }; setCategories(n); }} />
-                    <input className="field" value={cat.slug} onChange={(e) => { const n = [...categories]; n[i] = { ...cat, slug: e.target.value }; setCategories(n); }} />
+            <div className="mt-4 max-h-[28rem] space-y-3 overflow-y-auto">
+              <input
+                ref={categoryFileRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  e.target.value = "";
+                  const slug = categoryUploadSlugRef.current || categoryUploadSlug;
+                  if (f && slug) void handleUpload(f, "category", slug);
+                }}
+              />
+              {filteredCategories.map((cat) => (
+                <div key={cat.slug} className="flex flex-col gap-3 rounded-xl border border-black/6 bg-white/80 p-3 sm:flex-row sm:items-center">
+                  <div className="flex shrink-0 items-center gap-3">
+                    <span className="relative block h-16 w-16 overflow-hidden rounded-full bg-[#f3ebe4] ring-2 ring-white shadow">
+                      {cat.imageUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={cat.imageUrl} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <span className="flex h-full w-full items-center justify-center text-lg font-bold text-[#8f624e]">
+                          {(cat.titleBn || cat.title || "•").trim().charAt(0)}
+                        </span>
+                      )}
+                    </span>
+                    <div className="flex flex-col gap-1">
+                      <button
+                        type="button"
+                        className="rounded-full border border-[#c9a890] bg-[#f3ebe4] px-3 py-1 text-xs font-semibold text-[#3d2a24] disabled:opacity-60"
+                        disabled={uploading}
+                        onClick={() => {
+                          categoryUploadSlugRef.current = cat.slug;
+                          setCategoryUploadSlug(cat.slug);
+                          categoryFileRef.current?.click();
+                        }}
+                      >
+                        {fc.admin.categoryImage}
+                      </button>
+                      {cat.imageUrl ? (
+                        <button
+                          type="button"
+                          className="text-left text-xs font-semibold text-[#8f624e]"
+                          onClick={() => void removeCategoryImage(cat.slug)}
+                        >
+                          {fc.admin.removeImage}
+                        </button>
+                      ) : (
+                        <p className="max-w-[9rem] text-[10px] leading-4 text-[#9b7766]">{fc.admin.categoryImageHint}</p>
+                      )}
+                    </div>
+                  </div>
+                  <div className="grid min-w-0 flex-1 gap-2 md:grid-cols-2">
+                    <input className="field" value={cat.titleBn} onChange={(e) => updateCategory(cat.slug, { titleBn: e.target.value })} />
+                    <input className="field" value={cat.slug} onChange={(e) => updateCategory(cat.slug, { slug: e.target.value })} />
                   </div>
                   <button type="button" className="text-sm font-semibold text-red-700" onClick={() => removeCategory(cat.slug)}>{copy.actions.delete}</button>
                 </div>
