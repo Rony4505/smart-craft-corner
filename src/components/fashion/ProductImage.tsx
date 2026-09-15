@@ -21,6 +21,7 @@ export function ProductImage({
         priority={priority}
         sizes="(max-width: 768px) 100vw, 33vw"
         className="object-cover"
+        unoptimized={src.startsWith("/api/")}
       />
     </div>
   );
