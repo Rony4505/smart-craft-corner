@@ -8,15 +8,23 @@ import {
 } from "@/lib/fashion/store";
 import type { PromoBanner } from "@/lib/fashion/types";
 
+export const dynamic = "force-dynamic";
+
 /** Public: active banners for homepage. Admin sees all. */
 export async function GET() {
   const admin = await isFashionAdminAuthenticated();
   if (admin) {
     const settings = await getStoreSettings();
-    return NextResponse.json({ banners: settings.promoBanners ?? [] });
+    return NextResponse.json(
+      { banners: settings.promoBanners ?? [] },
+      { headers: { "Cache-Control": "no-store, max-age=0" } },
+    );
   }
   const banners = await getActivePromoBanners();
-  return NextResponse.json({ banners });
+  return NextResponse.json(
+    { banners },
+    { headers: { "Cache-Control": "no-store, max-age=0" } },
+  );
 }
 
 export async function POST(request: Request) {

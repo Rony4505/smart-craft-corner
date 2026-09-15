@@ -30,16 +30,7 @@ import {
   findCategoryForProduct,
   repairProductCategorySlugs,
 } from "./category-match";
-
-const defaultCoupons: Coupon[] = [
-  {
-    id: "cp-smartcraft10",
-    code: "SMARTCRAFT10",
-    discountType: "percent",
-    discountValue: 10,
-    active: true,
-  },
-];
+import { definedEntries, resolvePersistedCoupons, syncBannersForProduct } from "./promo-visibility";
 
 function defaultAdminPassword(): string {
   // Do not fall back to BloodLink ADMIN_PASSWORD — that locked founders out on shared Railway.
@@ -207,21 +198,6 @@ function normalizeProductSlugs(store: FashionStore): boolean {
   return changed;
 }
 
-function advertiseBadge(product: Product): string {
-  switch (product.advertiseKind) {
-    case "new":
-      return "নতুন";
-    case "discount":
-      return product.offerDiscountPercent ? `${product.offerDiscountPercent}% ছাড়` : "ডিসকাউন্ট";
-    case "offer":
-      return product.advertiseLabel || product.offerLabel || "অফার";
-    case "custom":
-      return product.advertiseLabel || "অফার";
-    default:
-      return product.advertiseLabel || "অফার";
-  }
-}
-
 function migrateOrder(order: Partial<FashionOrder>): FashionOrder {
   const status = order.status ?? "pending";
   return {
@@ -272,7 +248,7 @@ async function ensureStore(): Promise<FashionStore> {
       products,
       customers: parsed.customers ?? [],
       orders: (parsed.orders ?? []).map(migrateOrder),
-      coupons: parsed.coupons?.length ? parsed.coupons : defaultCoupons,
+      coupons: resolvePersistedCoupons(parsed.coupons),
       reviews: parsed.reviews ?? [],
       userNotifications: parsed.userNotifications ?? [],
       adminNotifications: parsed.adminNotifications ?? [],
@@ -294,7 +270,7 @@ async function ensureStore(): Promise<FashionStore> {
       products: rawSeedProducts.map((p) => migrateProduct(p, settings)),
       customers: [],
       orders: [],
-      coupons: defaultCoupons,
+      coupons: [],
       reviews: [],
       userNotifications: [],
       adminNotifications: [],
@@ -491,30 +467,23 @@ function resolveProductPrice(input: ProductInput, settings: StoreSettings): Prod
   };
 }
 
-function syncProductAdvertisement(store: FashionStore, product: Product): void {
-  const banners = [...(store.settings.promoBanners ?? [])];
-  const existingIndex = banners.findIndex((b) => b.productId === product.id);
-
-  if (product.advertiseActive) {
-    const banner: PromoBanner = {
-      id: existingIndex >= 0 ? banners[existingIndex].id : `pb-${product.id}`,
-      imageUrl: product.imageUrl,
-      title: product.advertiseLabel || product.nameBn,
-      linkSlug: product.slug,
-      productId: product.id,
-      badgeLabel: advertiseBadge(product),
-      advertiseKind: product.advertiseKind,
-      active: true,
-      expiresAt: existingIndex >= 0 ? banners[existingIndex].expiresAt : undefined,
-      sortOrder: existingIndex >= 0 ? banners[existingIndex].sortOrder : banners.length,
-    };
-    if (existingIndex >= 0) banners[existingIndex] = banner;
-    else banners.push(banner);
-  } else if (existingIndex >= 0) {
-    banners.splice(existingIndex, 1);
+function applyExplicitPromoFlags(product: Product, input: ProductInput): Product {
+  if (input.offerActive === false) {
+    product.offerActive = false;
+    product.offerLabel = undefined;
+    product.offerDiscountPercent = undefined;
+    product.offerExpiresAt = undefined;
   }
+  if (input.advertiseActive === false) {
+    product.advertiseActive = false;
+    product.advertiseKind = undefined;
+    product.advertiseLabel = undefined;
+  }
+  return product;
+}
 
-  store.settings.promoBanners = banners;
+function syncProductAdvertisement(store: FashionStore, product: Product): void {
+  store.settings.promoBanners = syncBannersForProduct(store.settings.promoBanners ?? [], product);
 }
 
 export async function upsertProduct(input: ProductInput): Promise<Product> {
@@ -524,9 +493,17 @@ export async function upsertProduct(input: ProductInput): Promise<Product> {
   const index = store.products.findIndex((item) => item.id === product.id);
   const previousProduct = index >= 0 ? store.products[index] : undefined;
   if (index >= 0) {
-    store.products[index] = { ...store.products[index], ...product, createdAt: store.products[index].createdAt };
+    store.products[index] = applyExplicitPromoFlags(
+      {
+        ...store.products[index],
+        ...definedEntries(product),
+        id: store.products[index].id,
+        createdAt: store.products[index].createdAt,
+      },
+      input,
+    );
   } else {
-    store.products.push(product);
+    store.products.push(applyExplicitPromoFlags(product, input));
   }
 
   repairProductCategorySlugs(store.products, store.categories);

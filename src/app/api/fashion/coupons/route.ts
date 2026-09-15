@@ -3,6 +3,8 @@ import { isFashionAdminAuthenticated } from "@/lib/fashion/customer-auth";
 import { deleteCoupon, listAllCouponsAdmin, upsertCoupon } from "@/lib/fashion/store";
 import type { Coupon } from "@/lib/fashion/types";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   if (!(await isFashionAdminAuthenticated())) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

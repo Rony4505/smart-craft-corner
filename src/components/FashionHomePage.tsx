@@ -39,7 +39,7 @@ export async function FashionHomePage() {
   return (
     <main className="min-h-screen bg-[linear-gradient(165deg,#0a1628_0%,#0f2744_45%,#122d52_100%)] pb-20 md:pb-0">
       <ChatSupportWidget />
-      <SiteEntryPopup />
+      <SiteEntryPopup offers={offers} />
       <AnnouncementBar settings={settings} />
       <section className="relative border-b border-white/10 bg-[radial-gradient(ellipse_at_12%_8%,rgba(30,74,122,0.35),transparent_52%),radial-gradient(ellipse_at_92%_92%,rgba(18,45,82,0.45),transparent_48%),linear-gradient(135deg,#0a1628_0%,#0f2744_38%,#122d52_72%,#0d1f38_100%)]">
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -51,16 +51,18 @@ export async function FashionHomePage() {
         <div className="relative z-20 mx-auto max-w-7xl px-5 pb-16 pt-8 text-[#e8eef7] md:px-8 md:pb-24 md:pt-10">
           <FashionHeader variant="light" />
 
-          <div className="relative mt-6 space-y-5">
-            {carouselSlides.length > 0 ? (
-              <div className="overflow-hidden rounded-[1.5rem] border border-white/20 shadow-[0_12px_40px_rgba(74,51,72,0.12)]">
-                <PromoCarousel slides={carouselSlides} />
-              </div>
-            ) : null}
-            {displayCoupons.length > 0 ? (
-              <HomeCouponStrip coupons={displayCoupons} products={products} />
-            ) : null}
-          </div>
+          {carouselSlides.length > 0 || displayCoupons.length > 0 ? (
+            <div className="relative mt-6 space-y-5">
+              {carouselSlides.length > 0 ? (
+                <div className="overflow-hidden rounded-[1.5rem] border border-white/20 shadow-[0_12px_40px_rgba(74,51,72,0.12)]">
+                  <PromoCarousel slides={carouselSlides} />
+                </div>
+              ) : null}
+              {displayCoupons.length > 0 ? (
+                <HomeCouponStrip coupons={displayCoupons} products={products} />
+              ) : null}
+            </div>
+          ) : null}
 
           {/* Image 1: hero title/CTAs replaced by admin categories */}
           <HomeCategoryShowcase categories={categories} />
