@@ -163,6 +163,7 @@ export const defaultSettings: StoreSettings = {
 
 export const defaultCategories: Category[] = [
   {
+    id: "jamdani",
     slug: "jamdani",
     title: "Luxury Jamdani",
     titleBn: "লাক্সারি জামদানি",
@@ -171,6 +172,7 @@ export const defaultCategories: Category[] = [
     description: "Hand-inspired jamdani textures and modern silhouettes.",
   },
   {
+    id: "festive",
     slug: "festive",
     title: "Modest Festive Edit",
     titleBn: "মডেস্ট ফেস্টিভ এডিট",
@@ -179,6 +181,7 @@ export const defaultCategories: Category[] = [
     description: "Statement festive pieces with modest coverage.",
   },
   {
+    id: "daily",
     slug: "daily",
     title: "Daily Elegance",
     titleBn: "ডেইলি এলিগেন্স",

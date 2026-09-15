@@ -24,6 +24,12 @@ import { computeAnalytics } from "./analytics";
 import { generateTrackingNumber } from "./tracking";
 import { buildProductSlug, isAsciiProductSlug } from "./product-slug";
 import { fashionDataDir, fashionStorePath } from "./paths";
+import {
+  categoryIdentity,
+  filterProductsByCategory,
+  findCategoryForProduct,
+  repairProductCategorySlugs,
+} from "./category-match";
 
 const defaultCoupons: Coupon[] = [
   {
@@ -275,6 +281,7 @@ async function ensureStore(): Promise<FashionStore> {
     if (purgeExpired(store)) await writeStore(store);
     if (normalizeProductSlugs(store)) await writeStore(store);
     if (await syncAdminPasswordHash(store)) await writeStore(store);
+    if (stabilizeCategoriesAndRepairProducts(store)) await writeStore(store);
     return store;
   } catch {
     await mkdir(dataDir(), { recursive: true });
@@ -333,10 +340,24 @@ export async function listCategories(): Promise<Category[]> {
   return store.categories;
 }
 
+function stabilizeCategoriesAndRepairProducts(store: FashionStore): boolean {
+  let changed = false;
+  store.categories = store.categories.map((category) => {
+    const id = category.id?.trim() || category.slug;
+    if (category.id === id) return category;
+    changed = true;
+    return { ...category, id };
+  });
+  if (repairProductCategorySlugs(store.products, store.categories)) changed = true;
+  return changed;
+}
+
 function normalizeCategory(cat: Category): Category {
   const imageUrl = cat.imageUrl?.trim();
+  const slug = cat.slug.trim();
   return {
-    slug: cat.slug.trim(),
+    id: cat.id?.trim() || slug,
+    slug,
     title: cat.title?.trim() || cat.titleBn?.trim() || "Category",
     titleBn: cat.titleBn?.trim() || cat.title?.trim() || "ক্যাটাগরি",
     subtitle: cat.subtitle ?? "",
@@ -348,14 +369,20 @@ function normalizeCategory(cat: Category): Category {
 
 export async function updateCategories(incoming: Category[]): Promise<Category[]> {
   const store = await ensureStore();
-  const merged = [...store.categories];
-  for (const cat of incoming.map(normalizeCategory)) {
-    if (!cat.slug) continue;
-    const index = merged.findIndex((item) => item.slug === cat.slug);
-    if (index >= 0) merged[index] = { ...merged[index], ...cat };
-    else merged.push(cat);
+  const previous = store.categories;
+  const next = incoming.map(normalizeCategory).filter((cat) => cat.slug);
+
+  for (const cat of next) {
+    const prev = previous.find((item) => categoryIdentity(item) === categoryIdentity(cat));
+    if (prev && prev.slug !== cat.slug) {
+      for (const product of store.products) {
+        if (product.categorySlug === prev.slug) product.categorySlug = cat.slug;
+      }
+    }
   }
-  store.categories = merged;
+
+  store.categories = next;
+  repairProductCategorySlugs(store.products, store.categories);
   await writeStore(store);
   return store.categories;
 }
@@ -404,15 +431,17 @@ export async function getNewProducts(sinceDays = 14): Promise<Product[]> {
 }
 
 export async function getProductsByCategory(categorySlug: string): Promise<Product[]> {
-  const products = await listProducts();
-  return products.filter((product) => product.categorySlug === categorySlug);
+  const store = await ensureStore();
+  return filterProductsByCategory(store.products, categorySlug, store.categories);
 }
 
 export async function getRelatedProducts(product: Product, limit = 4): Promise<Product[]> {
-  const products = await listProducts();
-  return products
-    .filter((item) => item.categorySlug === product.categorySlug && item.id !== product.id)
-    .slice(0, limit);
+  const store = await ensureStore();
+  const category = findCategoryForProduct(product, store.categories);
+  const related = category
+    ? filterProductsByCategory(store.products, category.slug, store.categories)
+    : store.products.filter((item) => item.categorySlug === product.categorySlug);
+  return related.filter((item) => item.id !== product.id).slice(0, limit);
 }
 
 function resolveProductPrice(input: ProductInput, settings: StoreSettings): Product {
@@ -497,6 +526,7 @@ export async function upsertProduct(input: ProductInput): Promise<Product> {
     store.products.push(product);
   }
 
+  repairProductCategorySlugs(store.products, store.categories);
   const savedProduct = store.products.find((p) => p.id === product.id) ?? product;
 
   if (isNew) {

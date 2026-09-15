@@ -4,15 +4,15 @@ import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { FashionShell } from "@/components/fashion/FashionShell";
 import { ProductGrid } from "@/components/fashion/ProductGrid";
-import { categories } from "@/lib/fashion/categories";
 import { copy } from "@/lib/fashion/copy";
 import { searchProducts } from "@/lib/fashion/search";
-import type { Product } from "@/lib/fashion/types";
+import type { Category, Product } from "@/lib/fashion/types";
 
 export default function SearchPageClient() {
   const searchParams = useSearchParams();
   const initialQuery = searchParams.get("q") ?? "";
   const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [query, setQuery] = useState(initialQuery);
   const [categorySlug, setCategorySlug] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
@@ -22,6 +22,9 @@ export default function SearchPageClient() {
     fetch("/api/fashion/products")
       .then((r) => r.json())
       .then((data) => setProducts(data.products ?? []));
+    fetch("/api/fashion/categories")
+      .then((r) => r.json())
+      .then((data) => setCategories(data.categories ?? []));
   }, []);
 
   const results = useMemo(
@@ -29,11 +32,12 @@ export default function SearchPageClient() {
       searchProducts(products, {
         query,
         categorySlug: categorySlug || undefined,
+        categories,
         maxPrice: maxPrice ? Number(maxPrice) : undefined,
         inStockOnly: true,
         sort,
       }),
-    [products, query, categorySlug, maxPrice, sort],
+    [products, categories, query, categorySlug, maxPrice, sort],
   );
 
   return (
@@ -45,7 +49,7 @@ export default function SearchPageClient() {
           <select className="field" value={categorySlug} onChange={(e) => setCategorySlug(e.target.value)}>
             <option value="">{copy.search.allCategories}</option>
             {categories.map((category) => (
-              <option key={category.slug} value={category.slug}>{category.titleBn}</option>
+              <option key={category.id || category.slug} value={category.slug}>{category.titleBn}</option>
             ))}
           </select>
           <select className="field" value={sort} onChange={(e) => setSort(e.target.value as typeof sort)}>

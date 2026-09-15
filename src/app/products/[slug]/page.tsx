@@ -5,7 +5,8 @@ import { ProductGrid } from "@/components/fashion/ProductGrid";
 import { ProductImage } from "@/components/fashion/ProductImage";
 import { ProductPageDetails } from "@/components/fashion/ProductPageDetails";
 import { ProductReviews } from "@/components/fashion/ProductReviews";
-import { getCategory } from "@/lib/fashion/categories-server";
+import { getCategory, getCategories } from "@/lib/fashion/categories-server";
+import { findCategoryForProduct } from "@/lib/fashion/category-match";
 import { getProductBySlug, getRelatedProducts } from "@/lib/fashion/store";
 
 export const dynamic = "force-dynamic";
@@ -30,7 +31,9 @@ export default async function ProductPage({ params }: Props) {
   const product = await getProductBySlug(slug);
   if (!product) notFound();
 
-  const category = await getCategory(product.categorySlug);
+  const categories = await getCategories();
+  const category =
+    findCategoryForProduct(product, categories) ?? (await getCategory(product.categorySlug));
   const related = await getRelatedProducts(product);
 
   return (

@@ -6,6 +6,7 @@ import { ProductGrid } from "@/components/fashion/ProductGrid";
 import { VisibleSelect } from "@/components/fashion/VisibleSelect";
 import { getEffectivePrice } from "@/lib/fashion/pricing";
 import { useFashionCopy } from "@/lib/fashion/use-fashion-copy";
+import { filterProductsByCategory } from "@/lib/fashion/category-match";
 import type { Category, Product } from "@/lib/fashion/types";
 
 type PriceSort = "default" | "price-asc" | "price-desc";
@@ -158,11 +159,9 @@ export function HomeProductBrowse({
   }
 
   const categoryProducts = useMemo(() => {
-    const filtered = categorySlug
-      ? products.filter((p) => p.categorySlug === categorySlug)
-      : products;
+    const filtered = filterProductsByCategory(products, categorySlug || undefined, categories);
     return sortProducts(filtered, categorySort);
-  }, [products, categorySlug, categorySort]);
+  }, [products, categorySlug, categorySort, categories]);
 
   const totalPages = Math.max(1, Math.ceil(categoryProducts.length / PAGE_SIZE));
   const safePage = Math.min(page, totalPages);

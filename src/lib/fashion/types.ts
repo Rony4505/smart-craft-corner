@@ -4,6 +4,8 @@ export type ProductColor = {
 };
 
 export type Category = {
+  /** Stable id so renaming the slug does not orphan products. */
+  id?: string;
   slug: string;
   title: string;
   titleBn: string;
@@ -314,6 +316,7 @@ export type ProductInput = Omit<Product, "id" | "slug" | "createdAt"> & {
 export type SearchFilters = {
   query?: string;
   categorySlug?: string;
+  categories?: Category[];
   minPrice?: number;
   maxPrice?: number;
   inStockOnly?: boolean;

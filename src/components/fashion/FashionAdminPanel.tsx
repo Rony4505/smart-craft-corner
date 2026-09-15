@@ -19,6 +19,7 @@ import { advertiseKindLabel } from "@/lib/fashion/i18n";
 import { bangladeshDistricts, BANNER_RECOMMENDED_SIZE } from "@/lib/fashion/districts";
 import { formatBdt } from "@/lib/fashion/format";
 import { useFashionCopy } from "@/lib/fashion/use-fashion-copy";
+import { categoryIdentity, findCategoryForProduct, productInCategory } from "@/lib/fashion/category-match";
 import type {
   AdminNotification,
   AnalyticsSummary,
@@ -195,7 +196,14 @@ export function FashionAdminPanel() {
   }
 
   const inventoryProducts = products.filter((p) => {
-    if (selectedCategorySlug && p.categorySlug !== selectedCategorySlug) return false;
+    if (selectedCategorySlug) {
+      const selected = categories.find((c) => c.slug === selectedCategorySlug);
+      if (selected) {
+        if (!productInCategory(p, selected, categories)) return false;
+      } else if (p.categorySlug !== selectedCategorySlug) {
+        return false;
+      }
+    }
     const q = productSearch.trim().toLowerCase();
     if (!q) return true;
     return [p.name, p.nameBn, p.id, p.slug].join(" ").toLowerCase().includes(q);
@@ -259,8 +267,10 @@ export function FashionAdminPanel() {
   function openProductEdit(product: Product) {
     setEditingId(product.id);
     setUseNewCategory(false);
+    const resolved = findCategoryForProduct(product, categories);
     setForm({
       ...product,
+      categorySlug: resolved?.slug || product.categorySlug,
       featured: product.featured ?? false,
       advertiseActive:
         product.advertiseActive ??
@@ -279,7 +289,7 @@ export function FashionAdminPanel() {
     setNewCategorySlug("");
     setForm({
       ...emptyProduct,
-      categorySlug: selectedCategorySlug || categories[0]?.slug || "festive",
+      categorySlug: selectedCategorySlug || categories[0]?.slug || "",
       sizes: settings?.availableSizes?.slice(0, 3) ?? emptyProduct.sizes,
     });
     setProductModalOpen(true);
@@ -313,27 +323,45 @@ export function FashionAdminPanel() {
     let categorySlug = form.categorySlug;
 
     if (useNewCategory) {
-      const slug = newCategorySlug.trim() || `cat-${Date.now()}`;
-      const cat: Category = {
-        slug,
-        title: newCategoryTitleBn.trim() || "New Category",
-        titleBn: newCategoryTitleBn.trim() || "নতুন ক্যাটাগরি",
-        subtitle: "",
-        accent: "from-[#f5e8dc] via-[#fffaf6] to-[#ead5c3]",
-        description: "",
-        imageUrl: "",
-      };
-      const updatedCategories = categories.some((c) => c.slug === cat.slug)
-        ? categories
-        : [...categories, cat];
-      const catRes = await fetch("/api/fashion/categories", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ categories: updatedCategories }),
+      const titleBn = newCategoryTitleBn.trim() || "নতুন ক্যাটাগরি";
+      const existing = categories.find((c) => {
+        const name = newCategoryTitleBn.trim();
+        return (
+          (name && (c.titleBn.trim() === name || c.title.trim() === name)) ||
+          (newCategorySlug.trim() && c.slug === newCategorySlug.trim())
+        );
       });
-      if (!catRes.ok) return;
-      categorySlug = cat.slug;
-      setCategories(updatedCategories);
+      if (existing) {
+        categorySlug = existing.slug;
+      } else {
+        const id = `cat-${Date.now()}`;
+        const slug = newCategorySlug.trim() || id;
+        const cat: Category = {
+          id,
+          slug,
+          title: newCategoryTitleBn.trim() || "New Category",
+          titleBn: titleBn,
+          subtitle: "",
+          accent: "from-[#f5e8dc] via-[#fffaf6] to-[#ead5c3]",
+          description: "",
+          imageUrl: "",
+        };
+        const updatedCategories = [...categories, cat];
+        const catRes = await fetch("/api/fashion/categories", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ categories: updatedCategories }),
+        });
+        if (!catRes.ok) return;
+        categorySlug = cat.slug;
+        setCategories(updatedCategories);
+      }
+    } else if (!categories.some((c) => c.slug === categorySlug)) {
+      if (selectedCategorySlug && categories.some((c) => c.slug === selectedCategorySlug)) {
+        categorySlug = selectedCategorySlug;
+      } else {
+        return;
+      }
     }
 
     const res = await fetch(editingId ? `/api/fashion/products/${editingId}` : "/api/fashion/products", {
@@ -371,7 +399,9 @@ export function FashionAdminPanel() {
     else if (target === "banner" && settings && bannerId) {
       setSettings({ ...settings, promoBanners: (settings.promoBanners ?? []).map((b) => b.id === bannerId ? { ...b, imageUrl: data.url } : b) });
     } else if (target === "category" && bannerId) {
-      const next = categories.map((c) => (c.slug === bannerId ? { ...c, imageUrl: data.url } : c));
+      const next = categories.map((c) =>
+        (c.id || c.slug) === bannerId ? { ...c, imageUrl: data.url } : c,
+      );
       setCategories(next);
       await fetch("/api/fashion/categories", {
         method: "PUT",
@@ -389,20 +419,26 @@ export function FashionAdminPanel() {
   }
 
   async function addCategory() {
+    const id = `cat-${Date.now()}`;
     const cat: Category = {
-      slug: `cat-${Date.now()}`, title: "New Category", titleBn: "নতুন ক্যাটাগরি",
-      subtitle: "", accent: "from-[#f5e8dc] via-[#fffaf6] to-[#ead5c3]", description: "",
+      id,
+      slug: id,
+      title: "New Category",
+      titleBn: "নতুন ক্যাটাগরি",
+      subtitle: "",
+      accent: "from-[#f5e8dc] via-[#fffaf6] to-[#ead5c3]",
+      description: "",
       imageUrl: "",
     };
     setCategories([...categories, cat]);
   }
 
-  function updateCategory(slug: string, patch: Partial<Category>) {
-    setCategories((list) => list.map((c) => (c.slug === slug ? { ...c, ...patch } : c)));
+  function updateCategory(key: string, patch: Partial<Category>) {
+    setCategories((list) => list.map((c) => (categoryIdentity(c) === key ? { ...c, ...patch } : c)));
   }
 
-  async function removeCategoryImage(slug: string) {
-    const next = categories.map((c) => (c.slug === slug ? { ...c, imageUrl: "" } : c));
+  async function removeCategoryImage(key: string) {
+    const next = categories.map((c) => (categoryIdentity(c) === key ? { ...c, imageUrl: "" } : c));
     setCategories(next);
     await fetch("/api/fashion/categories", {
       method: "PUT",
@@ -675,7 +711,9 @@ export function FashionAdminPanel() {
                   <button type="button" onClick={() => openProductEdit(p)} className="flex flex-1 items-center justify-between text-left hover:opacity-90">
                     <div>
                       <p className="font-semibold">{p.nameBn}</p>
-                      <p className="text-xs text-[#8b6456]">{p.categorySlug} · {p.id}</p>
+                      <p className="text-xs text-[#8b6456]">
+                        {findCategoryForProduct(p, categories)?.titleBn || p.categorySlug} · {p.id}
+                      </p>
                     </div>
                     <div className="text-right">
                       <p className="text-sm font-semibold text-[#8f624e]">{formatBdt(p.price)}</p>
@@ -719,8 +757,10 @@ export function FashionAdminPanel() {
                   if (f && slug) void handleUpload(f, "category", slug);
                 }}
               />
-              {filteredCategories.map((cat) => (
-                <div key={cat.slug} className="flex flex-col gap-3 rounded-xl border border-black/6 bg-white/80 p-3 sm:flex-row sm:items-center">
+              {filteredCategories.map((cat) => {
+                const key = categoryIdentity(cat);
+                return (
+                <div key={key} className="flex flex-col gap-3 rounded-xl border border-black/6 bg-white/80 p-3 sm:flex-row sm:items-center">
                   <div className="flex shrink-0 items-center gap-3">
                     <span className="relative block h-16 w-16 overflow-hidden rounded-full bg-[#f3ebe4] ring-2 ring-white shadow">
                       {cat.imageUrl ? (
@@ -738,8 +778,8 @@ export function FashionAdminPanel() {
                         className="rounded-full border border-[#c9a890] bg-[#f3ebe4] px-3 py-1 text-xs font-semibold text-[#3d2a24] disabled:opacity-60"
                         disabled={uploading}
                         onClick={() => {
-                          categoryUploadSlugRef.current = cat.slug;
-                          setCategoryUploadSlug(cat.slug);
+                          categoryUploadSlugRef.current = key;
+                          setCategoryUploadSlug(key);
                           categoryFileRef.current?.click();
                         }}
                       >
@@ -749,7 +789,7 @@ export function FashionAdminPanel() {
                         <button
                           type="button"
                           className="text-left text-xs font-semibold text-[#8f624e]"
-                          onClick={() => void removeCategoryImage(cat.slug)}
+                          onClick={() => void removeCategoryImage(key)}
                         >
                           {fc.admin.removeImage}
                         </button>
@@ -759,12 +799,13 @@ export function FashionAdminPanel() {
                     </div>
                   </div>
                   <div className="grid min-w-0 flex-1 gap-2 md:grid-cols-2">
-                    <input className="field" value={cat.titleBn} onChange={(e) => updateCategory(cat.slug, { titleBn: e.target.value })} />
-                    <input className="field" value={cat.slug} onChange={(e) => updateCategory(cat.slug, { slug: e.target.value })} />
+                    <input className="field" value={cat.titleBn} onChange={(e) => updateCategory(key, { titleBn: e.target.value })} />
+                    <input className="field" value={cat.slug} onChange={(e) => updateCategory(key, { slug: e.target.value })} />
                   </div>
                   <button type="button" className="text-sm font-semibold text-red-700" onClick={() => removeCategory(cat.slug)}>{copy.actions.delete}</button>
                 </div>
-              ))}
+                );
+              })}
             </div>
             <FashionButton className="mt-3" onClick={saveCategories}>{copy.actions.save} ক্যাটাগরি</FashionButton>
 
@@ -1222,7 +1263,14 @@ export function FashionAdminPanel() {
               <span className="text-sm text-[#9b7766]">ক্যাটাগরি</span>
               <select
                 className="field mt-1"
-                value={useNewCategory ? "__new__" : form.categorySlug}
+                value={
+                  useNewCategory
+                    ? "__new__"
+                    : categories.some((c) => c.slug === form.categorySlug)
+                      ? form.categorySlug
+                      : ""
+                }
+                required={!useNewCategory}
                 onChange={(e) => {
                   if (e.target.value === "__new__") {
                     setUseNewCategory(true);
@@ -1232,7 +1280,14 @@ export function FashionAdminPanel() {
                   setForm((c) => ({ ...c, categorySlug: e.target.value }));
                 }}
               >
-                {categories.map((c) => <option key={c.slug} value={c.slug}>{c.titleBn}</option>)}
+                <option value="" disabled>
+                  ক্যাটাগরি বেছে নিন
+                </option>
+                {categories.map((c) => (
+                  <option key={categoryIdentity(c)} value={c.slug}>
+                    {c.titleBn}
+                  </option>
+                ))}
                 <option value="__new__">+ নতুন ক্যাটাগরি তৈরি</option>
               </select>
               {useNewCategory ? (

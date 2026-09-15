@@ -1,4 +1,5 @@
 import type { Product, SearchFilters } from "./types";
+import { filterProductsByCategory, findCategoryForProduct } from "./category-match";
 
 export function slugify(value: string): string {
   return value
@@ -14,6 +15,7 @@ export function searchProducts(products: Product[], filters: SearchFilters): Pro
 
   if (query) {
     results = results.filter((product) => {
+      const category = findCategoryForProduct(product, filters.categories ?? []);
       const haystack = [
         product.name,
         product.nameBn,
@@ -22,6 +24,8 @@ export function searchProducts(products: Product[], filters: SearchFilters): Pro
         product.fabric,
         product.categorySlug,
         product.label ?? "",
+        category?.title ?? "",
+        category?.titleBn ?? "",
       ]
         .join(" ")
         .toLowerCase();
@@ -30,7 +34,7 @@ export function searchProducts(products: Product[], filters: SearchFilters): Pro
   }
 
   if (filters.categorySlug) {
-    results = results.filter((product) => product.categorySlug === filters.categorySlug);
+    results = filterProductsByCategory(results, filters.categorySlug, filters.categories ?? []);
   }
 
   if (typeof filters.minPrice === "number") {

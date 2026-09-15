@@ -7,5 +7,5 @@ export async function getCategories(): Promise<Category[]> {
 
 export async function getCategory(slug: string): Promise<Category | undefined> {
   const all = await listCategories();
-  return all.find((category) => category.slug === slug);
+  return all.find((category) => category.slug === slug || category.id === slug);
 }
