@@ -270,7 +270,9 @@ export function FashionAdminPanel() {
     const resolved = findCategoryForProduct(product, categories);
     setForm({
       ...product,
-      categorySlug: resolved?.slug || product.categorySlug,
+      categorySlug: categories.some((c) => c.slug === product.categorySlug)
+        ? product.categorySlug
+        : resolved?.slug || product.categorySlug,
       featured: product.featured ?? false,
       advertiseActive:
         product.advertiseActive ??

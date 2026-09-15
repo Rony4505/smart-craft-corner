@@ -371,6 +371,7 @@ export async function updateCategories(incoming: Category[]): Promise<Category[]
   const store = await ensureStore();
   const previous = store.categories;
   const next = incoming.map(normalizeCategory).filter((cat) => cat.slug);
+  if (next.length === 0) return previous;
 
   for (const cat of next) {
     const prev = previous.find((item) => categoryIdentity(item) === categoryIdentity(cat));

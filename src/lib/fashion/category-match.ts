@@ -40,7 +40,7 @@ export function productMatchesCategory(product: Product, category: Category): bo
 
 function guessCategoryFromName(product: Product, categories: Category[]): Category | undefined {
   const haystack = `${product.name} ${product.nameBn}`.toLowerCase();
-  let best: { category: Category; score: number } | undefined;
+  const matches: { category: Category; score: number }[] = [];
 
   for (const category of categories) {
     const labels = [category.titleBn, category.title]
@@ -48,15 +48,16 @@ function guessCategoryFromName(product: Product, categories: Category[]): Catego
       .filter((label): label is string => Boolean(label) && !GENERIC_TITLES.has(norm(label)));
 
     for (const label of labels) {
-      if (label.length < 2) continue;
+      if (label.length < 3) continue;
       if (haystack.includes(label.toLowerCase())) {
-        const score = label.length;
-        if (!best || score > best.score) best = { category, score };
+        matches.push({ category, score: label.length });
+        break;
       }
     }
   }
 
-  return best?.category;
+  if (matches.length !== 1) return undefined;
+  return matches[0].category;
 }
 
 /** Resolve the live category a product belongs to, including orphan slug repair. */
