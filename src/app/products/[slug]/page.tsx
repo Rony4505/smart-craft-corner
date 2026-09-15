@@ -2,11 +2,12 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { FashionShell } from "@/components/fashion/FashionShell";
 import { ProductGrid } from "@/components/fashion/ProductGrid";
-import { ProductImage } from "@/components/fashion/ProductImage";
+import { ProductGalleryCarousel } from "@/components/fashion/ProductGalleryCarousel";
 import { ProductPageDetails } from "@/components/fashion/ProductPageDetails";
 import { ProductReviews } from "@/components/fashion/ProductReviews";
 import { getCategory, getCategories } from "@/lib/fashion/categories-server";
 import { findCategoryForProduct } from "@/lib/fashion/category-match";
+import { getProductImages } from "@/lib/fashion/product-images";
 import { getProductBySlug, getRelatedProducts } from "@/lib/fashion/store";
 
 export const dynamic = "force-dynamic";
@@ -40,11 +41,17 @@ export default async function ProductPage({ params }: Props) {
     <FashionShell>
       <section className="mx-auto max-w-7xl px-5 py-14 md:px-8 md:py-20">
         <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr]">
-          <ProductImage src={product.imageUrl} alt={product.nameBn} className="h-[34rem]" priority />
+          <ProductGalleryCarousel
+            images={getProductImages(product)}
+            alt={product.nameBn}
+            className="h-[22rem] sm:h-[28rem] lg:h-[34rem]"
+          />
           <ProductPageDetails product={product} categoryTitle={category?.titleBn} />
         </div>
 
-        <ProductReviews productId={product.id} />
+        <div id="reviews" className="mt-20">
+          <ProductReviews productId={product.id} />
+        </div>
 
         <div className="mt-20">
           <ProductGrid products={related} showRelatedTitle />

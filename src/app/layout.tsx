@@ -27,13 +27,13 @@ export async function generateMetadata(): Promise<Metadata> {
     return {
       metadataBase: new URL(siteUrl),
       title: {
-        default: "Smart craft corner | Luxury Womenswear for Bangladesh",
-        template: "%s | Smart craft corner",
+        default: "Noorzaa | Luxury Womenswear for Bangladesh",
+        template: "%s | Noorzaa",
       },
       description:
-        "Smart craft corner is a luxury yet effortless women's fashion destination for Bangladesh, featuring premium festive and everyday edits with nationwide delivery.",
+        "Noorzaa — premium women's fashion for Bangladesh. Curated collections, festive and everyday wear, with nationwide delivery.",
       keywords: [
-        "Smart craft corner",
+        "Noorzaa",
         "Bangladesh womens fashion",
         "luxury ecommerce Bangladesh",
         "ladies boutique Dhaka",
@@ -49,8 +49,8 @@ export async function generateMetadata(): Promise<Metadata> {
         type: "website",
         locale: "bn_BD",
         url: siteUrl,
-        siteName: "Smart craft corner",
-        title: "Smart craft corner | Luxury Womenswear for Bangladesh",
+        siteName: "Noorzaa",
+        title: "Noorzaa | Luxury Womenswear for Bangladesh",
         description:
           "Premium women's fashion, festive edits, and simple luxury shopping for Bangladesh.",
         images: [
@@ -58,13 +58,13 @@ export async function generateMetadata(): Promise<Metadata> {
             url: "/apple-icon",
             width: 180,
             height: 180,
-            alt: "Smart craft corner",
+            alt: "Noorzaa",
           },
         ],
       },
       twitter: {
         card: "summary_large_image",
-        title: "Smart craft corner | Luxury Womenswear for Bangladesh",
+        title: "Noorzaa | Luxury Womenswear for Bangladesh",
         description:
           "Premium women's fashion, festive edits, and simple luxury shopping for Bangladesh.",
         images: ["/apple-icon"],

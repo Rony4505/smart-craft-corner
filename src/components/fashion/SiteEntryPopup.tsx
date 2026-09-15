@@ -37,12 +37,12 @@ export function SiteEntryPopup() {
   const items = [...data.offers, ...data.newProducts].slice(0, 4);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[560] flex items-center justify-center bg-black/45 p-4 backdrop-blur-sm">
       <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[2rem] border border-[#d4b896]/30 bg-[linear-gradient(165deg,#fffaf7,#f5e8dc)] p-6 shadow-2xl">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#9b7766]">
-              Smart craft corner
+              {copy.brand}
             </p>
             <h2 className="mt-2 font-[family-name:var(--font-display)] text-3xl font-bold text-[#2b1d19]">
               {copy.offers.popupTitle}

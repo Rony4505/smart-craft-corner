@@ -158,6 +158,8 @@ function migrateProduct(product: Partial<Product>, settings: StoreSettings): Pro
     colors: product.colors ?? [{ name: "Default", hex: "#f8efe9" }],
     tone: product.tone ?? "bg-[#f8efe9]",
     imageUrl: product.imageUrl!,
+    imageUrls: product.imageUrls?.filter((url) => Boolean(url?.trim())),
+    showSizes: product.showSizes,
     stock,
     featured: product.featured,
     inStock: stock > 0,

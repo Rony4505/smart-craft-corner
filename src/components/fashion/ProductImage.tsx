@@ -14,14 +14,17 @@ export function ProductImage({
 }) {
   return (
     <div className={cn("relative overflow-hidden rounded-[1.5rem] bg-[#f6ece6]", className)}>
-      <Image
-        src={src}
-        alt={alt}
-        fill
-        priority={priority}
-        sizes="(max-width: 768px) 100vw, 33vw"
-        className="object-cover"
-      />
+      {src ? (
+        <Image
+          src={src}
+          alt={alt}
+          fill
+          priority={priority}
+          sizes="(max-width: 768px) 100vw, 33vw"
+          className="object-cover"
+          unoptimized={src.startsWith("/api/")}
+        />
+      ) : null}
     </div>
   );
 }

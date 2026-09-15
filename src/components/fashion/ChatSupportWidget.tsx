@@ -23,7 +23,7 @@ export function ChatSupportWidget() {
 
   const whatsapp = (settings.whatsapp || "8801700000000").replace(/\D/g, "");
   const facebook = settings.facebookUrl?.trim() || "https://facebook.com";
-  const email = settings.contactEmail || "hello@smartcraftcorner.com";
+  const email = settings.contactEmail || "hello@noorzaa.com";
 
   const labels =
     locale === "bn"
@@ -43,7 +43,7 @@ export function ChatSupportWidget() {
         };
 
   return (
-    <div className="pointer-events-none fixed bottom-4 right-3 z-[100] sm:bottom-6 sm:right-5">
+    <div className="pointer-events-none fixed bottom-24 right-3 z-[100] sm:bottom-6 sm:right-5">
       <div className="pointer-events-auto flex flex-col items-end gap-2">
         {open ? (
           <div className="w-56 overflow-hidden rounded-2xl border border-[#e8c4b0]/70 bg-white shadow-[0_20px_60px_rgba(43,29,25,0.22)]">
