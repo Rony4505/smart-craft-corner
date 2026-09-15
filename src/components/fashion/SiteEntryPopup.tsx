@@ -5,36 +5,44 @@ import Link from "next/link";
 import { copy } from "@/lib/fashion/copy";
 import type { Product } from "@/lib/fashion/types";
 
-type PopupData = {
-  offers: Product[];
-  newProducts: Product[];
-};
-
-export function SiteEntryPopup() {
-  const [data, setData] = useState<PopupData | null>(null);
+export function SiteEntryPopup({ offers }: { offers?: Product[] }) {
+  const [activeOffers, setActiveOffers] = useState<Product[]>(offers ?? []);
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
+
+    async function resolveOffers() {
+      if (offers) {
+        if (!cancelled) setActiveOffers(offers);
+        return;
+      }
+      try {
+        const response = await fetch("/api/fashion/storefront", { cache: "no-store" });
+        const payload = (await response.json()) as { offers?: Product[] };
+        if (!cancelled) setActiveOffers(payload.offers ?? []);
+      } catch {
+        if (!cancelled) setActiveOffers([]);
+      }
+    }
+
+    void resolveOffers();
+    return () => {
+      cancelled = true;
+    };
+  }, [offers]);
+
+  useEffect(() => {
+    if (!activeOffers.length) return;
     const seen = sessionStorage.getItem("scc_popup_seen");
     if (seen) return;
+    setOpen(true);
+    sessionStorage.setItem("scc_popup_seen", "1");
+  }, [activeOffers]);
 
-    fetch("/api/fashion/storefront")
-      .then((r) => r.json())
-      .then((payload) => {
-        const offers = payload.offers ?? [];
-        const newProducts = payload.newProducts ?? [];
-        if (offers.length || newProducts.length) {
-          setData({ offers, newProducts });
-          setOpen(true);
-          sessionStorage.setItem("scc_popup_seen", "1");
-        }
-      })
-      .catch(() => undefined);
-  }, []);
+  if (!open || !activeOffers.length) return null;
 
-  if (!open || !data) return null;
-
-  const items = [...data.offers, ...data.newProducts].slice(0, 4);
+  const items = activeOffers.slice(0, 4);
 
   return (
     <div className="fixed inset-0 z-[560] flex items-center justify-center bg-black/45 p-4 backdrop-blur-sm">
@@ -45,7 +53,7 @@ export function SiteEntryPopup() {
               {copy.brand}
             </p>
             <h2 className="mt-2 font-[family-name:var(--font-display)] text-3xl font-bold text-[#2b1d19]">
-              {copy.offers.popupTitle}
+              {copy.offers.banner}
             </h2>
           </div>
           <button
@@ -71,13 +79,10 @@ export function SiteEntryPopup() {
               />
               <div>
                 <p className="font-semibold text-[#2b1d19]">{product.nameBn}</p>
-                {product.offerActive ? (
-                  <p className="text-sm text-[#8f624e]">
-                    {product.offerLabel ?? "অফার"} · {product.offerDiscountPercent}% ছাড়
-                  </p>
-                ) : (
-                  <p className="text-sm text-[#8b6456]">নতুন প্রোডাক্ট</p>
-                )}
+                <p className="text-sm text-[#8f624e]">
+                  {product.offerLabel ?? "অফার"}
+                  {product.offerDiscountPercent ? ` · ${product.offerDiscountPercent}% ছাড়` : ""}
+                </p>
               </div>
             </Link>
           ))}

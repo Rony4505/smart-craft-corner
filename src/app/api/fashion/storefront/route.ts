@@ -7,6 +7,8 @@ import {
   listPublicCoupons,
 } from "@/lib/fashion/store";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   const [settings, offers, newProducts, banners, coupons] = await Promise.all([
     getStoreSettings(),
@@ -15,5 +17,8 @@ export async function GET() {
     getActivePromoBanners(),
     listPublicCoupons(),
   ]);
-  return NextResponse.json({ settings, offers, newProducts, banners, coupons });
+  return NextResponse.json(
+    { settings, offers, newProducts, banners, coupons },
+    { headers: { "Cache-Control": "no-store, max-age=0" } },
+  );
 }

@@ -20,6 +20,7 @@ import { bangladeshDistricts, BANNER_RECOMMENDED_SIZE } from "@/lib/fashion/dist
 import { formatBdt } from "@/lib/fashion/format";
 import { useFashionCopy } from "@/lib/fashion/use-fashion-copy";
 import { categoryIdentity, findCategoryForProduct, productInCategory } from "@/lib/fashion/category-match";
+import { buildProductPromoBanner } from "@/lib/fashion/promo-visibility";
 import type {
   AdminNotification,
   AnalyticsSummary,
@@ -129,6 +130,7 @@ export function FashionAdminPanel() {
   const categoryFileRef = useRef<HTMLInputElement>(null);
   const categoryUploadSlugRef = useRef("");
   const [categoryUploadSlug, setCategoryUploadSlug] = useState("");
+  const advertiseIntentRef = useRef(false);
 
   async function load() {
     const safeFetch = async (url: string) => {
@@ -372,6 +374,18 @@ export function FashionAdminPanel() {
       body: JSON.stringify({ ...form, categorySlug, pricingMode: "manual" }),
     });
     if (!res.ok) return;
+    const saved = ((await res.json()) as { product?: Product }).product;
+    if (saved?.id && form.advertiseActive) {
+      const existing = banners.find((banner) => banner.productId === saved.id);
+      if (existing || advertiseIntentRef.current) {
+        await fetch("/api/fashion/banners", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(buildProductPromoBanner(saved, existing)),
+        });
+      }
+    }
+    advertiseIntentRef.current = false;
     setProductModalOpen(false);
     setUseNewCategory(false);
     setNewCategoryTitleBn("");
@@ -527,20 +541,8 @@ export function FashionAdminPanel() {
   }
 
   async function removeProductOffer(productId: string) {
-    const product = products.find((p) => p.id === productId);
-    if (!product) return;
-    await fetch(`/api/fashion/products/${productId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        ...product,
-        offerActive: false,
-        offerLabel: undefined,
-        offerDiscountPercent: undefined,
-        offerExpiresAt: undefined,
-        pricingMode: "manual",
-      }),
-    });
+    const res = await fetch(`/api/fashion/products/${productId}/offer`, { method: "DELETE" });
+    if (!res.ok) return;
     showSuccess("মুছে ফেলা হয়েছে", "Offer সরানো হয়েছে", "gold");
     await load();
   }
@@ -640,6 +642,7 @@ export function FashionAdminPanel() {
   }
 
   function confirmAdvertiseSetup() {
+    advertiseIntentRef.current = true;
     setForm((current) => ({
       ...current,
       advertiseActive: true,
@@ -650,6 +653,7 @@ export function FashionAdminPanel() {
   }
 
   function disableAdvertise() {
+    advertiseIntentRef.current = false;
     setForm((current) => ({
       ...current,
       advertiseActive: false,

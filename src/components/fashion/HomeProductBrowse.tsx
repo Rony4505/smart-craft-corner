@@ -22,15 +22,6 @@ function sortProducts(products: Product[], sort: PriceSort): Product[] {
   });
 }
 
-function uniqueById(products: Product[]): Product[] {
-  const seen = new Set<string>();
-  return products.filter((p) => {
-    if (seen.has(p.id)) return false;
-    seen.add(p.id);
-    return true;
-  });
-}
-
 function PriceSortSelect({
   value,
   onChange,
@@ -157,7 +148,8 @@ export function HomeProductBrowse({
   const searchParams = useSearchParams();
   const categorySlug = searchParams.get("category")?.trim() || "";
   const [categorySort, setCategorySort] = useState<PriceSort>("default");
-  const [highlightSort, setHighlightSort] = useState<PriceSort>("default");
+  const [offerSort, setOfferSort] = useState<PriceSort>("default");
+  const [newSort, setNewSort] = useState<PriceSort>("default");
   const [pageState, setPageState] = useState({ slug: categorySlug, page: 1 });
   if (pageState.slug !== categorySlug) {
     setPageState({ slug: categorySlug, page: 1 });
@@ -176,12 +168,8 @@ export function HomeProductBrowse({
     }, 80);
   }
 
-  const highlightProducts = useMemo(() => {
-    const bucket: Product[] = [];
-    if (showOffers) bucket.push(...offerProducts);
-    if (showNewProducts) bucket.push(...newProducts);
-    return uniqueById(bucket);
-  }, [offerProducts, newProducts, showOffers, showNewProducts]);
+  const visibleOffers = showOffers ? offerProducts : [];
+  const visibleNewProducts = showNewProducts ? newProducts : [];
 
   const categoryProducts = useMemo(() => {
     const filtered = filterProductsByCategory(products, categorySlug || undefined, categories);
@@ -195,19 +183,27 @@ export function HomeProductBrowse({
 
   return (
     <>
-      {highlightProducts.length > 0 ? (
+      {visibleOffers.length > 0 ? (
         <ProductSection
-          title={locale === "bn" ? "নতুন ও অফার" : "New & offers"}
-          subtitle={
-            locale === "bn"
-              ? "নতুন প্রোডাক্ট, ডিসকাউন্ট ও চলমান অফার একসাথে"
-              : "New arrivals, discounts, and live offers in one place"
-          }
-          products={highlightProducts}
-          sort={highlightSort}
-          onSortChange={setHighlightSort}
+          title={fc.home.offers}
+          subtitle={fc.home.offersSub}
+          products={visibleOffers}
+          sort={offerSort}
+          onSortChange={setOfferSort}
           locale={locale}
           sectionId="offers"
+        />
+      ) : null}
+
+      {visibleNewProducts.length > 0 ? (
+        <ProductSection
+          title={fc.home.newProducts}
+          subtitle={fc.home.newProductsSub}
+          products={visibleNewProducts}
+          sort={newSort}
+          onSortChange={setNewSort}
+          locale={locale}
+          sectionId="new"
         />
       ) : null}
 
