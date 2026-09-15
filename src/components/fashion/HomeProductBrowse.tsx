@@ -1,10 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { CategoryCircle, CategoryCircleRow } from "@/components/fashion/CategoryCircle";
+import { useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ProductGrid } from "@/components/fashion/ProductGrid";
 import { VisibleSelect } from "@/components/fashion/VisibleSelect";
 import { getEffectivePrice } from "@/lib/fashion/pricing";
+import { sortProductsByDisplayPriority } from "@/lib/fashion/product-sort";
+import { localeEyebrowClass } from "@/lib/fashion/locale-text-style";
 import { useFashionCopy } from "@/lib/fashion/use-fashion-copy";
 import { filterProductsByCategory } from "@/lib/fashion/category-match";
 import type { Category, Product } from "@/lib/fashion/types";
@@ -13,10 +15,19 @@ type PriceSort = "default" | "price-asc" | "price-desc";
 const PAGE_SIZE = 20;
 
 function sortProducts(products: Product[], sort: PriceSort): Product[] {
-  if (sort === "default") return products;
+  if (sort === "default") return sortProductsByDisplayPriority(products);
   return [...products].sort((a, b) => {
     const diff = getEffectivePrice(a) - getEffectivePrice(b);
     return sort === "price-asc" ? diff : -diff;
+  });
+}
+
+function uniqueById(products: Product[]): Product[] {
+  const seen = new Set<string>();
+  return products.filter((p) => {
+    if (seen.has(p.id)) return false;
+    seen.add(p.id);
+    return true;
   });
 }
 
@@ -79,12 +90,16 @@ function ProductSection({
   products,
   sort,
   onSortChange,
+  locale,
+  sectionId,
 }: {
   title: string;
   subtitle?: string;
   products: Product[];
   sort: PriceSort;
   onSortChange: (value: PriceSort) => void;
+  locale: "bn" | "en";
+  sectionId?: string;
 }) {
   const sorted = useMemo(() => sortProducts(products, sort), [products, sort]);
   const [page, setPage] = useState(1);
@@ -92,12 +107,14 @@ function ProductSection({
   const safePage = Math.min(page, totalPages);
   const pageItems = sorted.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
 
+  if (!products.length) return null;
+
   return (
-    <section className="border-b border-black/5 bg-white">
+    <section id={sectionId} className="border-b border-black/5 bg-white text-[#4a3348]">
       <div className="mx-auto max-w-7xl px-5 py-14 md:px-8 md:py-20">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="text-sm font-medium uppercase tracking-[0.28em] text-[#9b7766]">{title}</p>
+            <p className={localeEyebrowClass(locale)}>{title}</p>
             {subtitle ? (
               <p className="mt-2 max-w-2xl text-base leading-7 text-[#6e5449]">{subtitle}</p>
             ) : null}
@@ -135,28 +152,36 @@ export function HomeProductBrowse({
   showNewProducts?: boolean;
   showOffers?: boolean;
 }) {
-  const { fc } = useFashionCopy();
-  const [categorySlug, setCategorySlug] = useState("");
+  const { fc, locale } = useFashionCopy();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const categorySlug = searchParams.get("category")?.trim() || "";
   const [categorySort, setCategorySort] = useState<PriceSort>("default");
-  const [newSort, setNewSort] = useState<PriceSort>("default");
-  const [offerSort, setOfferSort] = useState<PriceSort>("default");
-  const [page, setPage] = useState(1);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const fromUrl = params.get("category") || "";
-    if (fromUrl) setCategorySlug(fromUrl);
-  }, []);
+  const [highlightSort, setHighlightSort] = useState<PriceSort>("default");
+  const [pageState, setPageState] = useState({ slug: categorySlug, page: 1 });
+  if (pageState.slug !== categorySlug) {
+    setPageState({ slug: categorySlug, page: 1 });
+  }
+  const page = pageState.page;
+  const setPage = (next: number) => setPageState({ slug: categorySlug, page: next });
 
   function selectCategory(slug: string) {
-    setCategorySlug(slug);
-    setPage(1);
-    const url = new URL(window.location.href);
-    if (slug) url.searchParams.set("category", slug);
-    else url.searchParams.delete("category");
-    url.hash = "products";
-    window.history.replaceState(null, "", `${url.pathname}${url.search}${url.hash}`);
+    const params = new URLSearchParams(searchParams.toString());
+    if (slug) params.set("category", slug);
+    else params.delete("category");
+    const qs = params.toString();
+    router.replace(`${qs ? `/?${qs}` : "/"}#products`, { scroll: false });
+    window.setTimeout(() => {
+      document.getElementById("products")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 80);
   }
+
+  const highlightProducts = useMemo(() => {
+    const bucket: Product[] = [];
+    if (showOffers) bucket.push(...offerProducts);
+    if (showNewProducts) bucket.push(...newProducts);
+    return uniqueById(bucket);
+  }, [offerProducts, newProducts, showOffers, showNewProducts]);
 
   const categoryProducts = useMemo(() => {
     const filtered = filterProductsByCategory(products, categorySlug || undefined, categories);
@@ -170,38 +195,31 @@ export function HomeProductBrowse({
 
   return (
     <>
-      <section className="border-b border-black/5 bg-[#f4f5f7]">
-        <div className="mx-auto max-w-7xl px-5 py-8 md:px-8 md:py-10">
-          <h2 className="text-lg font-extrabold tracking-wide text-[#1f1f1f] md:text-xl">
-            {fc.home.categoryTitle}
-          </h2>
-          <div className="mt-5">
-            <CategoryCircleRow>
-              <CategoryCircle
-                label={fc.search.allCategories}
-                selected={!categorySlug}
-                onClick={() => selectCategory("")}
-              />
-              {categories.map((cat) => (
-                <CategoryCircle
-                  key={cat.slug}
-                  label={cat.titleBn || cat.title}
-                  imageUrl={cat.imageUrl}
-                  selected={categorySlug === cat.slug}
-                  onClick={() => selectCategory(cat.slug)}
-                />
-              ))}
-            </CategoryCircleRow>
-          </div>
-        </div>
-      </section>
+      {highlightProducts.length > 0 ? (
+        <ProductSection
+          title={locale === "bn" ? "নতুন ও অফার" : "New & offers"}
+          subtitle={
+            locale === "bn"
+              ? "নতুন প্রোডাক্ট, ডিসকাউন্ট ও চলমান অফার একসাথে"
+              : "New arrivals, discounts, and live offers in one place"
+          }
+          products={highlightProducts}
+          sort={highlightSort}
+          onSortChange={setHighlightSort}
+          locale={locale}
+          sectionId="offers"
+        />
+      ) : null}
 
-      <section id="products" className="border-b border-black/5 bg-white">
-        <div className="mx-auto max-w-7xl px-5 py-10 md:px-8 md:py-14">
+      <section id="products" className="border-b border-black/5 bg-[#f3f1ef] text-[#4a3348]">
+        <div className="mx-auto max-w-7xl px-5 py-14 md:px-8 md:py-20">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <h2 className="font-[family-name:var(--font-display)] text-3xl font-bold md:text-4xl">
-                {selectedCategory ? selectedCategory.titleBn : fc.home.allProducts}
+              <p className={localeEyebrowClass(locale)}>{fc.home.categoryTitle}</p>
+              <h2 className="mt-2 font-[family-name:var(--font-display)] text-3xl font-bold md:text-4xl">
+                {selectedCategory
+                  ? selectedCategory.titleBn || selectedCategory.title
+                  : fc.home.allProducts}
               </h2>
               <p className="mt-2 text-sm text-[#6e5449]">{fc.home.categoryHint}</p>
             </div>
@@ -214,6 +232,34 @@ export function HomeProductBrowse({
             />
           </div>
 
+          <div className="mt-6 flex gap-2 overflow-x-auto pb-1">
+            <button
+              type="button"
+              onClick={() => selectCategory("")}
+              className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition ${
+                !categorySlug
+                  ? "bg-[#8f624e] text-white shadow-md"
+                  : "border-2 border-[#8f624e]/50 bg-[#f3ebe4] text-[#1c1412] hover:bg-[#ebe0d6]"
+              }`}
+            >
+              {fc.search.allCategories}
+            </button>
+            {categories.map((cat) => (
+              <button
+                key={cat.slug}
+                type="button"
+                onClick={() => selectCategory(cat.slug)}
+                className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition ${
+                  categorySlug === cat.slug
+                    ? "bg-[#8f624e] text-white shadow-md"
+                    : "border-2 border-[#8f624e]/50 bg-[#f3ebe4] text-[#1c1412] hover:bg-[#ebe0d6]"
+                }`}
+              >
+                {cat.titleBn || cat.title}
+              </button>
+            ))}
+          </div>
+
           <div className="mt-8">
             <ProductGrid products={pageItems} />
           </div>
@@ -222,31 +268,11 @@ export function HomeProductBrowse({
             totalPages={totalPages}
             onChange={(n) => {
               setPage(n);
-              document.getElementById("products")?.scrollIntoView({ behavior: "smooth" });
+              document.getElementById("products")?.scrollIntoView({ behavior: "smooth", block: "start" });
             }}
           />
         </div>
       </section>
-
-      {showNewProducts ? (
-        <ProductSection
-          title={fc.home.newProducts}
-          subtitle={fc.home.newProductsSub}
-          products={newProducts}
-          sort={newSort}
-          onSortChange={setNewSort}
-        />
-      ) : null}
-
-      {showOffers ? (
-        <ProductSection
-          title={fc.home.offers}
-          subtitle={fc.home.offersSub}
-          products={offerProducts}
-          sort={offerSort}
-          onSortChange={setOfferSort}
-        />
-      ) : null}
     </>
   );
 }

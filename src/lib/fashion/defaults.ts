@@ -1,7 +1,7 @@
 import type { Category, StoreSettings } from "./types";
 
 export const defaultSettings: StoreSettings = {
-  brandName: "Smart craft corner",
+  brandName: "Noorzaa",
   brandTagline: "বাংলাদেশি নারীদের জন্য লাক্সারি ফ্যাশন",
   brandTaglineEn: "Luxury fashion for Bangladeshi women",
   defaultMarkupPercent: 35,

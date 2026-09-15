@@ -43,7 +43,7 @@ export default function SearchPageClient() {
   return (
     <FashionShell>
       <section className="mx-auto max-w-7xl px-5 py-14 md:px-8 md:py-20">
-        <h1 className="font-[family-name:var(--font-display)] text-5xl font-bold">{copy.search.title}</h1>
+        <h1 className="font-[family-name:var(--font-display)] text-5xl font-bold text-white">{copy.search.title}</h1>
         <div className="mt-8 grid gap-4 rounded-[2rem] border border-black/6 bg-white p-6 md:grid-cols-4">
           <input className="field md:col-span-2" placeholder={copy.search.placeholder} value={query} onChange={(e) => setQuery(e.target.value)} />
           <select className="field" value={categorySlug} onChange={(e) => setCategorySlug(e.target.value)}>
@@ -61,7 +61,7 @@ export default function SearchPageClient() {
         </div>
         <div className="mt-10">
           {results.length === 0 ? (
-            <p className="text-[#6f554a]">{copy.search.noResults}</p>
+            <p className="text-[#b8c9de]">{copy.search.noResults}</p>
           ) : (
             <ProductGrid products={results} />
           )}

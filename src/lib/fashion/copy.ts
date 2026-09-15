@@ -1,11 +1,13 @@
 export const copy = {
-  brand: "Smart craft corner",
+  brand: "Noorzaa",
   tagline: "বাংলাদেশি নারীদের জন্য লাক্সারি ফ্যাশন",
   nav: {
     collections: "কালেকশন",
     about: "আমাদের গল্প",
     contact: "যোগাযোগ",
     track: "ট্র্যাক অর্ডার",
+    myProduct: "আমার প্রোডাক্ট",
+    myOrders: "আমার অর্ডার",
     cart: "কার্ট",
     account: "অ্যাকাউন্ট",
     login: "লগইন",
@@ -70,7 +72,7 @@ export const copy = {
     orderStatus: "অর্ডার স্ট্যাটাস",
   },
   admin: {
-    title: "Smart craft corner Admin",
+    title: "Noorzaa Admin",
     products: "প্রোডাক্ট",
     orders: "অর্ডার",
     categories: "ক্যাটাগরি",

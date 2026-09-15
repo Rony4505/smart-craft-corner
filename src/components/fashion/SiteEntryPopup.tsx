@@ -42,7 +42,7 @@ export function SiteEntryPopup() {
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#9b7766]">
-              Smart craft corner
+              {copy.brand}
             </p>
             <h2 className="mt-2 font-[family-name:var(--font-display)] text-3xl font-bold text-[#2b1d19]">
               {copy.offers.popupTitle}
