@@ -158,7 +158,7 @@ export function RegisterForm() {
     <AccountAuthFrame
       eyebrow="NEW MEMBER"
       title={copy.account.registerTitle}
-      subtitle="OTP সবসময় আপনার Gmail-এ যাবে। ৬ সংখ্যা লিখা শেষ হলেই অ্যাকাউন্ট অটো ভেরিফাই হবে।"
+      subtitle="OTP সবসময় আপনার Gmail-এ যাবে। ৬ সংখ্যা লেখা শেষ হলেই অ্যাকাউন্ট অটো ভেরিফাই হবে।"
       footer={
         <>
           ইতিমধ্যে অ্যাকাউন্ট আছে?{" "}
