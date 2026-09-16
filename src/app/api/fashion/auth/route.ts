@@ -9,7 +9,7 @@ import {
 } from "@/lib/fashion/customer-auth";
 import { issueOtp, verifyOtp } from "@/lib/fashion/otp";
 import { deliverOtp, otpDebugEnabled } from "@/lib/fashion/mail";
-import { findCustomerByEmail } from "@/lib/fashion/store";
+import { findCustomerByEmail, updateCustomer } from "@/lib/fashion/store";
 import { fashionDataDir } from "@/lib/fashion/paths";
 
 type PendingReg = {
@@ -51,7 +51,7 @@ export async function POST(request: Request) {
     if (body.action === "register-send-otp") {
       const email = String(body.email ?? "").trim().toLowerCase();
       const phone = String(body.phone ?? "").trim();
-      const channel = body.channel === "phone" ? "phone" : "email";
+      const channel = "email" as const;
       if (!body.name || !email || !phone || !body.password) {
         return NextResponse.json({ error: "সব ঘর পূরণ করুন" }, { status: 400 });
       }
@@ -65,11 +65,10 @@ export async function POST(request: Request) {
           { status: 400 },
         );
       }
-      const target = channel === "phone" ? phone : email;
       const { code } = await issueOtp({
         purpose: "register",
         channel,
-        target,
+        target: email,
       });
       const pending = await readPending();
       pending[email] = {
@@ -85,7 +84,7 @@ export async function POST(request: Request) {
       try {
         delivery = await deliverOtp({
           channel,
-          target,
+          target: email,
           code,
           purpose: "register",
         });
@@ -106,10 +105,7 @@ export async function POST(request: Request) {
         ok: true,
         channel,
         delivered: delivery.delivered,
-        targetHint:
-          channel === "email"
-            ? email.replace(/(.{2}).+(@.+)/, "$1***$2")
-            : `***${phone.slice(-4)}`,
+        targetHint: email.replace(/(.{2}).+(@.+)/, "$1***$2"),
         ...(delivery.debugOtp ? { debugOtp: delivery.debugOtp } : {}),
       });
     }
@@ -126,7 +122,7 @@ export async function POST(request: Request) {
           { status: 400 },
         );
       }
-      const target = pending.channel === "phone" ? pending.phone : pending.email;
+      const target = pending.email;
       const ok = await verifyOtp({
         purpose: "register",
         target,
@@ -167,6 +163,23 @@ export async function POST(request: Request) {
     if (body.action === "login") {
       const customer = await loginCustomer(body.email, body.password);
       return NextResponse.json({ customer: sanitizeCustomer(customer) });
+    }
+
+    if (body.action === "update-profile") {
+      const current = await getCurrentCustomer();
+      if (!current) {
+        return NextResponse.json({ error: "লগইন করুন" }, { status: 401 });
+      }
+      const updated = await updateCustomer(current.id, {
+        name: body.name,
+        phone: body.phone,
+        address: body.address,
+        district: body.district,
+      });
+      if (!updated) {
+        return NextResponse.json({ error: "প্রোফাইল আপডেট হয়নি" }, { status: 400 });
+      }
+      return NextResponse.json({ customer: sanitizeCustomer(updated) });
     }
 
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });

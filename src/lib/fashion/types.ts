@@ -237,6 +237,9 @@ export type FashionCustomer = {
   email: string;
   phone: string;
   passwordHash: string;
+  address?: string;
+  district?: string;
+  avatarUrl?: string;
   verified?: boolean;
   verifiedChannel?: "email" | "phone";
   createdAt: string;

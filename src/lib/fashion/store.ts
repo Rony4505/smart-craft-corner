@@ -753,11 +753,30 @@ export async function createCustomer(input: {
     email: input.email.trim().toLowerCase(),
     phone: input.phone.trim(),
     passwordHash: input.passwordHash,
+    address: "",
+    district: "",
+    avatarUrl: "",
     verified: input.verified ?? false,
     verifiedChannel: input.verifiedChannel,
     createdAt: new Date().toISOString(),
   };
   store.customers.push(customer);
+  await writeStore(store);
+  return customer;
+}
+
+export async function updateCustomer(
+  id: string,
+  patch: Partial<Pick<FashionCustomer, "name" | "phone" | "address" | "district" | "avatarUrl">>,
+): Promise<FashionCustomer | null> {
+  const store = await ensureStore();
+  const customer = store.customers.find((entry) => entry.id === id);
+  if (!customer) return null;
+  if (patch.name !== undefined) customer.name = patch.name.trim();
+  if (patch.phone !== undefined) customer.phone = patch.phone.trim();
+  if (patch.address !== undefined) customer.address = patch.address.trim();
+  if (patch.district !== undefined) customer.district = patch.district.trim();
+  if (patch.avatarUrl !== undefined) customer.avatarUrl = patch.avatarUrl.trim();
   await writeStore(store);
   return customer;
 }
@@ -867,6 +886,13 @@ export async function createOrder(
   });
 
   if (record.customerId) {
+    const owner = store.customers.find((entry) => entry.id === record.customerId);
+    if (owner) {
+      owner.address = record.address;
+      owner.district = record.district;
+      if (record.phone) owner.phone = record.phone;
+      if (record.customerName) owner.name = record.customerName;
+    }
     store.userNotifications.unshift({
       id: `un${Date.now()}ord`,
       customerId: record.customerId,

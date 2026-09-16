@@ -111,6 +111,14 @@ a {
   animation: drift 8s ease-in-out infinite alternate;
 }
 
+.auth-filigree {
+  background-image:
+    radial-gradient(circle at 12px 12px, rgba(212, 184, 150, 0.22) 1.4px, transparent 1.8px),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.04) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(255, 255, 255, 0.04) 25%, transparent 25%);
+  background-size: 36px 36px, 28px 28px, 28px 28px;
+}
+
 .field {
   width: 100%;
   border: 1.5px solid #c9a890;
