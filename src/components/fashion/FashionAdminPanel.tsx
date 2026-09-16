@@ -19,6 +19,7 @@ import { bangladeshDistricts, BANNER_RECOMMENDED_SIZE } from "@/lib/fashion/dist
 import { formatBdt } from "@/lib/fashion/format";
 import { useFashionCopy } from "@/lib/fashion/use-fashion-copy";
 import { categoryIdentity, findCategoryForProduct, productInCategory } from "@/lib/fashion/category-match";
+import { applyProductGallery, getProductImages, MAX_PRODUCT_IMAGES } from "@/lib/fashion/product-images";
 import { buildProductPromoBanner } from "@/lib/fashion/promo-visibility";
 import type {
   AdminNotification,
@@ -42,7 +43,7 @@ const emptyProduct: ProductInput = {
   name: "", nameBn: "", price: 0, buyPrice: 0, categorySlug: "festive",
   description: "", descriptionBn: "", fabric: "", sizes: ["S", "M", "L"],
   colors: [{ name: "Default", hex: "#f8efe9" }], tone: "bg-[#f8efe9]",
-  imageUrl: "https://images.unsplash.com/photo-1595777457582-31a4f8e1a5c5?auto=format&fit=crop&w=900&q=80",
+  imageUrl: "", imageUrls: [],
   stock: 25, inStock: true, featured: false, pricingMode: "manual", advertiseActive: false,
 };
 
@@ -129,6 +130,7 @@ export function FashionAdminPanel() {
   const categoryFileRef = useRef<HTMLInputElement>(null);
   const categoryUploadSlugRef = useRef("");
   const [categoryUploadSlug, setCategoryUploadSlug] = useState("");
+  const [uploadError, setUploadError] = useState("");
   const advertiseIntentRef = useRef(false);
 
   async function load() {
@@ -269,8 +271,10 @@ export function FashionAdminPanel() {
     setEditingId(product.id);
     setUseNewCategory(false);
     const resolved = findCategoryForProduct(product, categories);
+    const gallery = getProductImages(product);
     setForm({
       ...product,
+      ...applyProductGallery(product, gallery),
       categorySlug: categories.some((c) => c.slug === product.categorySlug)
         ? product.categorySlug
         : resolved?.slug || product.categorySlug,
@@ -404,14 +408,23 @@ export function FashionAdminPanel() {
 
   async function handleUpload(file: File, target: "product" | "banner" | "category", bannerId?: string) {
     setUploading(true);
+    setUploadError("");
     const fd = new FormData();
     fd.append("file", file);
     const res = await fetch("/api/fashion/upload", { method: "POST", body: fd });
     const data = await res.json();
     setUploading(false);
-    if (!data.url) return;
-    if (target === "product") setForm((c) => ({ ...c, imageUrl: data.url }));
-    else if (target === "banner" && settings && bannerId) {
+    if (!res.ok || !data.url) {
+      setUploadError(data.error || "ছবি আপলোড হয়নি");
+      return;
+    }
+    if (target === "product") {
+      setForm((c) => {
+        const gallery = getProductImages(c);
+        if (gallery.length >= MAX_PRODUCT_IMAGES) return c;
+        return { ...c, ...applyProductGallery(c, [...gallery, data.url as string]) };
+      });
+    } else if (target === "banner" && settings && bannerId) {
       setSettings({ ...settings, promoBanners: (settings.promoBanners ?? []).map((b) => b.id === bannerId ? { ...b, imageUrl: data.url } : b) });
     } else if (target === "category" && bannerId) {
       const next = categories.map((c) =>
@@ -425,6 +438,25 @@ export function FashionAdminPanel() {
       });
       showSuccess("সফল!", "ক্যাটাগরি ইমেজ সেভ হয়েছে", "sage");
     }
+  }
+
+  async function handleProductFiles(fileList: FileList | File[]) {
+    const files = Array.from(fileList);
+    const remaining = MAX_PRODUCT_IMAGES - getProductImages(form).length;
+    for (const file of files.slice(0, Math.max(0, remaining))) {
+      if (file.size > 8 * 1024 * 1024) {
+        setUploadError("ছবি ৮ MB-এর কম হতে হবে");
+        continue;
+      }
+      await handleUpload(file, "product");
+    }
+  }
+
+  function removeProductImage(url: string) {
+    setForm((current) => {
+      const next = getProductImages(current).filter((item) => item !== url);
+      return { ...current, ...applyProductGallery(current, next) };
+    });
   }
 
   async function saveCategories() {
@@ -713,8 +745,14 @@ export function FashionAdminPanel() {
               <p className="text-xs font-semibold uppercase tracking-wider text-[#9b7766]">মোট {inventoryProducts.length} প্রোডাক্ট</p>
               {inventoryProducts.map((p) => (
                 <div key={p.id} className="flex items-center gap-2 rounded-2xl border border-black/6 bg-white/80 px-4 py-3">
-                  <button type="button" onClick={() => openProductEdit(p)} className="flex flex-1 items-center justify-between text-left hover:opacity-90">
-                    <div>
+                  <button type="button" onClick={() => openProductEdit(p)} className="flex flex-1 items-center gap-3 text-left hover:opacity-90">
+                    <span className="h-12 w-12 shrink-0 overflow-hidden rounded-xl bg-[#faf0ea]">
+                      {getProductImages(p)[0] ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={getProductImages(p)[0]} alt="" className="h-full w-full object-cover" />
+                      ) : null}
+                    </span>
+                    <div className="min-w-0 flex-1">
                       <p className="font-semibold">{p.nameBn}</p>
                       <p className="text-xs text-[#8b6456]">
                         {findCategoryForProduct(p, categories)?.titleBn || p.categorySlug} · {p.id}
@@ -1244,6 +1282,47 @@ export function FashionAdminPanel() {
           <form onSubmit={saveProduct} className="max-h-[90vh] w-full max-w-xl overflow-y-auto rounded-[2rem] border border-[#e8c4b0]/60 bg-[linear-gradient(160deg,#fff8f4,#fdeee4)] p-6 shadow-2xl space-y-3">
             <div className="flex justify-between"><h2 className="text-2xl font-bold">{editingId ? copy.actions.edit : copy.actions.create}</h2>
               <button type="button" onClick={() => setProductModalOpen(false)}>✕</button></div>
+            <div className="rounded-2xl border border-[#e8c4b0]/70 bg-white/80 p-3">
+              <p className="text-sm font-semibold text-[#8e1050]">প্রোডাক্ট ছবি</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {getProductImages(form).map((url) => (
+                  <div key={url} className="relative h-24 w-24 overflow-hidden rounded-2xl bg-[#faf0ea]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={url} alt="" className="h-full w-full object-cover" />
+                    <button
+                      type="button"
+                      className="absolute right-1 top-1 rounded-full bg-white/90 px-1.5 text-xs font-bold text-[#8e1050]"
+                      onClick={() => removeProductImage(url)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+                {getProductImages(form).length < MAX_PRODUCT_IMAGES ? (
+                  <button
+                    type="button"
+                    disabled={uploading}
+                    onClick={() => fileRef.current?.click()}
+                    className="flex h-24 w-24 flex-col items-center justify-center rounded-2xl border border-dashed border-[#c2186b]/45 bg-[#fff5f8] text-center text-[11px] font-semibold leading-4 text-[#c2186b]"
+                  >
+                    {uploading ? "..." : "ছবি যোগ করুন"}
+                  </button>
+                ) : null}
+              </div>
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                multiple
+                className="hidden"
+                onChange={(e) => {
+                  const files = e.target.files;
+                  e.target.value = "";
+                  if (files?.length) void handleProductFiles(files);
+                }}
+              />
+              {uploadError ? <p className="mt-2 text-xs text-red-700">{uploadError}</p> : null}
+            </div>
             {([["nameBn", "নাম (বাংলা)"], ["name", "Name (English)"], ["buyPrice", "কেনা দাম"], ["price", "বিক্রয়"], ["stock", "স্টক"]] as const).map(([key, label]) => (
               <label key={key} className="block"><span className="text-sm text-[#9b7766]">{label}</span>
                 <input className="field mt-1" value={String(form[key as keyof ProductInput] ?? "")} onChange={(e) => setForm((c) => ({ ...c, [key]: ["price", "buyPrice", "stock"].includes(key) ? Number(e.target.value) : e.target.value }))} /></label>
@@ -1360,8 +1439,6 @@ export function FashionAdminPanel() {
                 <input className="field" type="number" placeholder="ছাড় %" value={form.offerDiscountPercent ?? ""} onChange={(e) => setForm((c) => ({ ...c, offerDiscountPercent: Number(e.target.value) || undefined }))} />
               </div>
             ) : null}
-            <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) void handleUpload(f, "product"); }} />
-            <FashionButton type="button" variant="secondary" onClick={() => fileRef.current?.click()} disabled={uploading}>{copy.actions.upload}</FashionButton>
             <FashionButton type="submit">{copy.actions.save}</FashionButton>
           </form>
         </div>

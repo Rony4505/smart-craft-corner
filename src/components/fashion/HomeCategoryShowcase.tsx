@@ -12,7 +12,7 @@ export function HomeCategoryShowcase({ categories }: { categories: Category[] })
 
   if (!categories.length) {
     return (
-      <div className="mt-8 rounded-[1.5rem] border border-[#f3c6dc] bg-white/80 px-5 py-8 text-center">
+      <div className="mt-8 px-1 py-4 text-center">
         <p className="text-sm text-[#7a3a5c]">
           {locale === "bn"
             ? "শীঘ্রই ক্যাটাগরি যোগ করা হবে।"
@@ -23,8 +23,8 @@ export function HomeCategoryShowcase({ categories }: { categories: Category[] })
   }
 
   return (
-    <div className="mt-8 rounded-[1.5rem] bg-[#f4f5f7] px-4 py-6 shadow-[0_12px_40px_rgba(8,20,40,0.18)] md:px-6 md:py-8">
-      <h2 className="text-lg font-extrabold tracking-wide text-[#1f1f1f] md:text-xl">
+    <div className="mt-8">
+      <h2 className="text-lg font-extrabold tracking-wide text-[#8e1050] md:text-xl">
         {fc.home.categoryTitle}
       </h2>
       <div className="mt-5">

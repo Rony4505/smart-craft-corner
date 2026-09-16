@@ -295,12 +295,8 @@ export function FashionHeader({ variant = "light" }: { variant?: "light" | "dark
         </NavIconButton>
       </div>
 
-      <div className="relative overflow-hidden rounded-[2rem] border border-[#f3c6dc]/80 bg-white px-6 py-8 shadow-[0_18px_60px_rgba(194,24,107,0.1)] md:px-10 md:py-10">
-        <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden rounded-[2rem]">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_12%_0%,rgba(233,30,140,0.16),transparent_52%),radial-gradient(ellipse_at_90%_100%,rgba(194,24,107,0.12),transparent_48%)]" />
-        </div>
-
-        <div className="relative z-10 flex min-h-[5.25rem] items-center justify-center md:min-h-[6.25rem]">
+      <div className="relative px-2 py-5 md:px-4 md:py-7">
+        <div className="relative z-10 flex min-h-[4.5rem] items-center justify-center md:min-h-[5.5rem]">
           <NoorzaaWordmark priority className="max-w-[18rem] sm:max-w-[24rem] md:max-w-[32rem] lg:max-w-[38rem]" />
           <span className="sr-only">{brand}</span>
         </div>

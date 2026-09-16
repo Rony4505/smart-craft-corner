@@ -25,8 +25,8 @@ function CircleFace({
     <>
       <span
         className={cn(
-          "relative block h-[5.35rem] w-[5.35rem] overflow-hidden rounded-full bg-white shadow-[0_8px_22px_rgba(28,20,18,0.12)] ring-[3px] md:h-[6.25rem] md:w-[6.25rem]",
-          selected ? "ring-[#c45a7a]" : "ring-white",
+          "relative block h-[5.35rem] w-[5.35rem] overflow-hidden rounded-full bg-[#fde8f2] shadow-[0_8px_22px_rgba(194,24,107,0.16)] ring-[3px] md:h-[6.25rem] md:w-[6.25rem]",
+          selected ? "ring-[#c2186b]" : "ring-[#f8d0e4]",
         )}
       >
         {imageUrl ? (

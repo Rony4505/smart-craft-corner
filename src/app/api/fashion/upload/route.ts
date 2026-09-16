@@ -15,6 +15,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "No file" }, { status: 400 });
   }
 
+  if (file.size > 8 * 1024 * 1024) {
+    return NextResponse.json({ error: "ছবি ৮ MB-এর কম হতে হবে" }, { status: 400 });
+  }
+
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
   const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";

@@ -13,13 +13,14 @@ export function NoorzaaWordmark({
 }) {
   const mark = (
     <Image
-      src="/brand/noorzaa-wordmark.png"
+      src="/brand/noorzaa-wordmark-v2.png"
       alt="NOORZAA"
-      width={1068}
-      height={261}
+      width={1049}
+      height={243}
       priority={priority}
+      unoptimized
       className={cn(
-        "h-auto w-full max-w-[20rem] object-contain object-center sm:max-w-[24rem] md:max-w-[30rem] lg:max-w-[36rem]",
+        "h-auto w-full max-w-[20rem] object-contain object-center drop-shadow-[0_10px_24px_rgba(142,16,80,0.16)] sm:max-w-[24rem] md:max-w-[30rem] lg:max-w-[36rem]",
         className,
       )}
     />
