@@ -8,6 +8,7 @@ import {
   sanitizeCustomer,
 } from "@/lib/fashion/customer-auth";
 import { issueOtp, verifyOtp } from "@/lib/fashion/otp";
+import { deliverOtp, otpDebugEnabled } from "@/lib/fashion/mail";
 import { findCustomerByEmail } from "@/lib/fashion/store";
 import { fashionDataDir } from "@/lib/fashion/paths";
 
@@ -80,14 +81,36 @@ export async function POST(request: Request) {
         expiresAt: Date.now() + 15 * 60 * 1000,
       };
       await writePending(pending);
+      let delivery: { delivered: boolean; debugOtp?: string };
+      try {
+        delivery = await deliverOtp({
+          channel,
+          target,
+          code,
+          purpose: "register",
+        });
+      } catch (error) {
+        delete pending[email];
+        await writePending(pending);
+        return NextResponse.json(
+          {
+            error:
+              error instanceof Error
+                ? error.message
+                : "Gmail-এ OTP পাঠানো যায়নি। পরে আবার চেষ্টা করুন।",
+          },
+          { status: 502 },
+        );
+      }
       return NextResponse.json({
         ok: true,
         channel,
+        delivered: delivery.delivered,
         targetHint:
           channel === "email"
             ? email.replace(/(.{2}).+(@.+)/, "$1***$2")
             : `***${phone.slice(-4)}`,
-        debugOtp: code,
+        ...(delivery.debugOtp ? { debugOtp: delivery.debugOtp } : {}),
       });
     }
 
@@ -126,6 +149,12 @@ export async function POST(request: Request) {
     }
 
     if (body.action === "register") {
+      if (!otpDebugEnabled()) {
+        return NextResponse.json(
+          { error: "নতুন অ্যাকাউন্টের জন্য Gmail OTP ভেরিফিকেশন লাগবে" },
+          { status: 400 },
+        );
+      }
       const customer = await registerCustomer({
         name: body.name,
         email: body.email,

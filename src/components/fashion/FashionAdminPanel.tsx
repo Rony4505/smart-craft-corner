@@ -1451,23 +1451,25 @@ export function FashionAdminLogin() {
       });
       const data = await otpRes.json();
       if (!otpRes.ok) {
-        // Fallback: if OTP channel not configured, complete login with password
-        const fallback = await fetch("/api/fashion/admin", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: "login-direct", username, password }),
-        });
-        setLoading(false);
-        if (fallback.ok) {
-          router.push("/store-admin");
-          router.refresh();
-          return;
+        if (otpRes.status === 400) {
+          const fallback = await fetch("/api/fashion/admin", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "login-direct", username, password }),
+          });
+          setLoading(false);
+          if (fallback.ok) {
+            router.push("/store-admin");
+            router.refresh();
+            return;
+          }
         }
-        setError(data.error || "OTP পাঠানো যায়নি — Settings-এ admin email/phone সেট করুন");
+        setLoading(false);
+        setError(data.error || "OTP পাঠানো যায়নি — Settings-এ admin email সেট করুন");
         return;
       }
       setDebugOtp(String(data.debugOtp || ""));
-      setOtp(String(data.debugOtp || ""));
+      setOtp(data.debugOtp ? String(data.debugOtp) : "");
       setTargetHint(data.targetHint || "");
       setStep("otp");
     } catch {
@@ -1579,9 +1581,13 @@ export function FashionAdminLogin() {
               </p>
             ) : null}
             <p className="text-xs text-[#9b7766]">
-              {locale === "bn"
-                ? "উপরের কোডটি নিচে লিখুন (ডেমোতে OTP এখানে দেখানো হয়)"
-                : "Enter the code above (demo shows OTP here)"}
+              {debugOtp
+                ? locale === "bn"
+                  ? "উপরের কোডটি নিচে লিখুন (লোকাল ডেমো)"
+                  : "Enter the code above (local demo)"
+                : locale === "bn"
+                  ? "Gmail থেকে পাওয়া ৬ সংখ্যার কোডটি লিখুন"
+                  : "Enter the 6-digit code from Gmail"}
             </p>
             <label className="block">
               <span className="text-sm text-[#9b7766]">OTP</span>

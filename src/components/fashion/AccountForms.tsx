@@ -86,11 +86,13 @@ export function RegisterForm() {
   const [step, setStep] = useState<"form" | "otp">("form");
   const [otp, setOtp] = useState("");
   const [debugOtp, setDebugOtp] = useState("");
+  const [targetHint, setTargetHint] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function sendOtp(event: FormEvent) {
     event.preventDefault();
+    event.stopPropagation();
     setLoading(true);
     setError("");
     const res = await fetch("/api/fashion/auth", {
@@ -105,12 +107,14 @@ export function RegisterForm() {
       return;
     }
     setDebugOtp(data.debugOtp || "");
-    setOtp(String(data.debugOtp || ""));
+    setOtp(data.debugOtp ? String(data.debugOtp) : "");
+    setTargetHint(data.targetHint || form.email);
     setStep("otp");
   }
 
   async function verifyOtp(event: FormEvent) {
     event.preventDefault();
+    event.stopPropagation();
     setLoading(true);
     setError("");
     const res = await fetch("/api/fashion/auth", {
@@ -141,6 +145,8 @@ export function RegisterForm() {
 
         {step === "form" ? (
           <form
+            method="post"
+            action="/account/register"
             onSubmit={sendOtp}
             className="mt-8 space-y-4 rounded-[2rem] border border-black/6 bg-white p-6 shadow-[0_24px_80px_rgba(48,27,20,0.06)]"
           >
@@ -157,6 +163,8 @@ export function RegisterForm() {
                 <input
                   className="field mt-2"
                   type={type}
+                  name={key}
+                  autoComplete={key === "email" ? "email" : key === "phone" ? "tel" : "name"}
                   value={form[key]}
                   onChange={(e) => setForm((c) => ({ ...c, [key]: e.target.value }))}
                   required
@@ -167,6 +175,7 @@ export function RegisterForm() {
               label={copy.form.password}
               value={form.password}
               onChange={(v) => setForm((c) => ({ ...c, password: v }))}
+              autoComplete="new-password"
               required
             />
             <div>
@@ -202,23 +211,31 @@ export function RegisterForm() {
           </form>
         ) : (
           <form
+            method="post"
+            action="/account/register"
             onSubmit={verifyOtp}
             className="mt-8 space-y-4 rounded-[2rem] border border-black/6 bg-white p-6 shadow-[0_24px_80px_rgba(48,27,20,0.06)]"
           >
             {error ? <p className="text-sm text-red-700">{error}</p> : null}
             <p className="text-sm text-[#6f554a]">
-              {channel === "email" ? "ইমেইল" : "ফোন"}-এ OTP পাঠানো হয়েছে। কোডটি লিখুন।
+              {channel === "email"
+                ? `${targetHint || "আপনার Gmail"}-এ OTP পাঠানো হয়েছে। ইনবক্স ও স্প্যাম ফোল্ডার চেক করুন।`
+                : "ফোন-এ OTP পাঠানো হয়েছে। কোডটি লিখুন।"}
             </p>
             {debugOtp ? (
               <p className="rounded-xl border border-[#e8cc80] bg-[#fffbf0] px-4 py-3 text-center text-lg font-bold tracking-[0.35em] text-[#6b5420]">
                 {debugOtp}
               </p>
             ) : null}
-            <p className="text-xs text-[#9b7766]">উপরের OTP কোডটি নিচে লিখুন</p>
+            <p className="text-xs text-[#9b7766]">
+              {debugOtp ? "উপরের OTP কোডটি নিচে লিখুন" : "Gmail থেকে পাওয়া ৬ সংখ্যার কোডটি লিখুন"}
+            </p>
             <label className="block">
               <span className="text-sm text-[#9b7766]">OTP কোড</span>
               <input
                 className="field mt-2 tracking-[0.35em]"
+                name="otp"
+                autoComplete="one-time-code"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
                 required
