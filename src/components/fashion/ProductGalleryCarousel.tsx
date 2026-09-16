@@ -1,11 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { clampProductImageScrollSeconds } from "@/lib/fashion/product-display";
 import { getProductImages } from "@/lib/fashion/product-images";
 import type { Product } from "@/lib/fashion/types";
 import { ProductImage } from "./ProductImage";
 
-const AUTO_SCROLL_MS = 2500;
+const DEFAULT_AUTO_SCROLL_MS = 2000;
 const SLIDE_TRANSITION_MS = 700;
 
 function SlideDots({
@@ -185,7 +186,13 @@ function ThumbnailStrip({
   );
 }
 
-function useAutoGallery(images: string[], intervalMs: number, enabled: boolean, pingPong = false) {
+function useAutoGallery(
+  images: string[],
+  intervalMs: number,
+  enabled: boolean,
+  pingPong = false,
+  paused = false,
+) {
   const [index, setIndex] = useState(0);
   const directionRef = useRef(1);
   const imagesKey = images.join("|");
@@ -214,7 +221,7 @@ function useAutoGallery(images: string[], intervalMs: number, enabled: boolean, 
   }, []);
 
   useEffect(() => {
-    if (!enabled || images.length <= 1) return;
+    if (!enabled || paused || images.length <= 1) return;
     if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       return;
     }
@@ -239,27 +246,47 @@ function useAutoGallery(images: string[], intervalMs: number, enabled: boolean, 
     }, intervalMs);
 
     return () => window.clearInterval(id);
-  }, [enabled, images.length, imagesKey, intervalMs, pingPong]);
+  }, [enabled, paused, images.length, imagesKey, intervalMs, pingPong]);
 
   return { index, setIndex: goTo, step };
 }
 
-/** Product page: one main image with smaller thumbnails below (no auto ping-pong). */
+/** Product page: main image auto-scrolls, with thumbnails below. */
 export function ProductGalleryCarousel({
   images,
   alt,
   className = "h-[34rem]",
+  intervalSeconds,
 }: {
   images: string[];
   alt: string;
   className?: string;
+  intervalSeconds?: number;
 }) {
-  const [selectedIndex, setSelectedIndex] = useState(0);
   const [lightbox, setLightbox] = useState(false);
+  const [paused, setPaused] = useState(false);
+  const [seconds, setSeconds] = useState(intervalSeconds ?? 2);
 
   useEffect(() => {
-    setSelectedIndex(0);
-  }, [images.join("|")]);
+    if (intervalSeconds != null) {
+      setSeconds(clampProductImageScrollSeconds(intervalSeconds));
+      return;
+    }
+    fetch("/api/fashion/settings")
+      .then((r) => r.json())
+      .then((data) => {
+        setSeconds(clampProductImageScrollSeconds(data.settings?.productImageScrollSeconds));
+      })
+      .catch(() => undefined);
+  }, [intervalSeconds]);
+
+  const { index: selectedIndex, setIndex: setSelectedIndex } = useAutoGallery(
+    images,
+    clampProductImageScrollSeconds(seconds) * 1000,
+    images.length > 1 && !lightbox,
+    false,
+    paused,
+  );
 
   if (!images.length) {
     return <ProductImage src="" alt={alt} className={className} priority />;
@@ -284,6 +311,8 @@ export function ProductGalleryCarousel({
     <>
       <div
         className={`flex flex-col overflow-hidden rounded-[2rem] border border-black/6 bg-[#faf4f0] ${className}`}
+        onMouseEnter={() => setPaused(true)}
+        onMouseLeave={() => setPaused(false)}
       >
         <button
           type="button"
@@ -322,16 +351,23 @@ export function ProductCardGallery({
   product,
   alt,
   className = "h-40 sm:h-56 md:h-72",
+  seconds = 2,
 }: {
   product: Pick<Product, "imageUrl" | "imageUrls">;
   alt: string;
   className?: string;
+  seconds?: number;
 }) {
   const images = useMemo(
     () => getProductImages(product),
     [product.imageUrl, product.imageUrls?.join("|")],
   );
-  const { index } = useAutoGallery(images, AUTO_SCROLL_MS, images.length > 1, true);
+  const { index } = useAutoGallery(
+    images,
+    clampProductImageScrollSeconds(seconds) * 1000 || DEFAULT_AUTO_SCROLL_MS,
+    images.length > 1,
+    true,
+  );
 
   if (images.length <= 1) {
     return <ProductImage src={images[0] ?? ""} alt={alt} className={className} />;

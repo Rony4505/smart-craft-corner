@@ -24,7 +24,8 @@ export async function POST(request: Request) {
   const buffer = Buffer.from(bytes);
   const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
   const safeExt = ["jpg", "jpeg", "png", "webp"].includes(ext) ? ext : "jpg";
-  const filename = `avatar-${customer.id}-${Date.now()}.${safeExt}`;
+  const idPart = customer.id.replace(/[^A-Za-z0-9._-]/g, "") || "user";
+  const filename = `fashion-avatar-${idPart}-${Date.now()}.${safeExt}`;
   const uploadDir = fashionUploadDir();
   await mkdir(uploadDir, { recursive: true });
   await writeFile(path.join(uploadDir, filename), buffer);

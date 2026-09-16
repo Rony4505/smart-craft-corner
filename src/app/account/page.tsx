@@ -8,6 +8,7 @@ import { FashionShell } from "@/components/fashion/FashionShell";
 import { copy } from "@/lib/fashion/copy";
 import { bangladeshDistricts } from "@/lib/fashion/districts";
 import { formatBdt } from "@/lib/fashion/format";
+import { profileStartsLocked } from "@/lib/fashion/product-display";
 import type { FashionOrder, Product, UserNotification } from "@/lib/fashion/types";
 
 type ProfileCustomer = {
@@ -35,6 +36,8 @@ export default function AccountPage() {
   const [notifications, setNotifications] = useState<UserNotification[]>([]);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [avatarFailed, setAvatarFailed] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
@@ -52,11 +55,14 @@ export default function AccountPage() {
       const next = auth.customer as ProfileCustomer;
       const nextOrders = (orderData.orders ?? []) as FashionOrder[];
       const latest = nextOrders[0];
-      setCustomer({
+      const merged: ProfileCustomer = {
         ...next,
         address: next.address || latest?.address || "",
         district: next.district || latest?.district || "",
-      });
+      };
+      setCustomer(merged);
+      setEditing(!profileStartsLocked(next));
+      setAvatarFailed(false);
       setOrders(nextOrders);
       setNotifications(notifData.notifications ?? []);
       setProducts(productData.products ?? []);
@@ -71,7 +77,7 @@ export default function AccountPage() {
 
   async function saveProfile(event: FormEvent) {
     event.preventDefault();
-    if (!customer) return;
+    if (!customer || !editing) return;
     setSaving(true);
     setError("");
     setMessage("");
@@ -93,6 +99,7 @@ export default function AccountPage() {
       return;
     }
     setCustomer(data.customer);
+    setEditing(false);
     setMessage("প্রোফাইল আপডেট হয়েছে");
   }
 
@@ -109,6 +116,7 @@ export default function AccountPage() {
       return;
     }
     setCustomer(data.customer);
+    setAvatarFailed(false);
     setMessage("প্রোফাইল ছবি সেট হয়েছে");
   }
 
@@ -144,9 +152,14 @@ export default function AccountPage() {
             <div className="flex items-center gap-5">
               <div className="relative">
                 <span className="relative block h-28 w-28 overflow-hidden rounded-full bg-[#fde8f2] ring-4 ring-white/30">
-                  {customer.avatarUrl ? (
+                  {customer.avatarUrl && !avatarFailed ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={customer.avatarUrl} alt="" className="h-full w-full object-cover" />
+                    <img
+                      src={customer.avatarUrl}
+                      alt=""
+                      className="h-full w-full object-cover"
+                      onError={() => setAvatarFailed(true)}
+                    />
                   ) : (
                     <span className="flex h-full w-full items-center justify-center font-[family-name:var(--font-display)] text-4xl font-bold text-[#c2186b]">
                       {initials(customer.name)}
@@ -174,13 +187,12 @@ export default function AccountPage() {
                 />
               </div>
               <div>
-                <p className="text-[11px] tracking-[0.35em] text-[#fde8f2]">NOORZAA MEMBER</p>
-                <h1 className="mt-1 font-[family-name:var(--font-display)] text-4xl font-bold md:text-5xl">
+                <h1 className="font-[family-name:var(--font-display)] text-4xl font-bold md:text-5xl">
                   {customer.name}
                 </h1>
-                <p className="mt-2 text-sm text-[#d5e3f5]">{customer.email}</p>
+                <p className="mt-2 text-sm text-[#fde8f2]">{customer.email}</p>
                 {memberSince ? (
-                  <p className="mt-1 text-xs text-[#fde8f2]">সদস্য: {memberSince}</p>
+                  <p className="mt-1 text-xs text-[#fde8f2]">{memberSince}</p>
                 ) : null}
               </div>
             </div>
@@ -200,9 +212,20 @@ export default function AccountPage() {
             onSubmit={saveProfile}
             className="space-y-4 rounded-[2rem] border border-black/6 bg-white p-6 shadow-[0_18px_50px_rgba(48,27,20,0.06)]"
           >
-            <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#8e1050]">
-              প্রোফাইল ডিটেইলস
-            </h2>
+            <div className="flex items-center justify-between gap-3">
+              <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#8e1050]">
+                প্রোফাইল
+              </h2>
+              {!editing ? (
+                <button
+                  type="button"
+                  onClick={() => setEditing(true)}
+                  className="rounded-full border border-[#f3c6dc] bg-[#fff5f8] px-4 py-1.5 text-sm font-semibold text-[#c2186b] transition hover:bg-[#fde8f2]"
+                >
+                  এডিট
+                </button>
+              ) : null}
+            </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="block">
                 <span className="text-sm text-[#9b7766]">নাম</span>
@@ -211,6 +234,8 @@ export default function AccountPage() {
                   value={customer.name}
                   onChange={(e) => setCustomer({ ...customer, name: e.target.value })}
                   required
+                  readOnly={!editing}
+                  disabled={!editing}
                 />
               </label>
               <label className="block">
@@ -220,6 +245,8 @@ export default function AccountPage() {
                   value={customer.phone}
                   onChange={(e) => setCustomer({ ...customer, phone: e.target.value })}
                   required
+                  readOnly={!editing}
+                  disabled={!editing}
                 />
               </label>
               <label className="block sm:col-span-2">
@@ -232,7 +259,8 @@ export default function AccountPage() {
                   className="field mt-2 min-h-24"
                   value={customer.address ?? ""}
                   onChange={(e) => setCustomer({ ...customer, address: e.target.value })}
-                  placeholder="বাসা/রোড, এলাকা"
+                  readOnly={!editing}
+                  disabled={!editing}
                 />
               </label>
               <label className="block sm:col-span-2">
@@ -241,6 +269,7 @@ export default function AccountPage() {
                   className="field mt-2"
                   value={customer.district ?? ""}
                   onChange={(e) => setCustomer({ ...customer, district: e.target.value })}
+                  disabled={!editing}
                 >
                   <option value="">জেলা বেছে নিন</option>
                   {districts.map((district) => (
@@ -251,9 +280,11 @@ export default function AccountPage() {
                 </select>
               </label>
             </div>
-            <FashionButton type="submit" disabled={saving}>
-              {saving ? "সেভ হচ্ছে..." : copy.account.saveProfile}
-            </FashionButton>
+            {editing ? (
+              <FashionButton type="submit" disabled={saving}>
+                {saving ? "সেভ হচ্ছে..." : copy.account.saveProfile}
+              </FashionButton>
+            ) : null}
           </form>
 
           <div className="rounded-[2rem] border border-black/6 bg-white p-6 shadow-[0_18px_50px_rgba(48,27,20,0.06)]">

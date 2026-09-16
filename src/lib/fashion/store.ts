@@ -31,6 +31,7 @@ import {
   repairProductCategorySlugs,
 } from "./category-match";
 import { definedEntries, resolvePersistedCoupons, syncBannersForProduct } from "./promo-visibility";
+import { clampProductImageScrollSeconds } from "./product-display";
 
 function defaultAdminPassword(): string {
   // Do not fall back to BloodLink ADMIN_PASSWORD — that locked founders out on shared Railway.
@@ -77,6 +78,9 @@ function migrateSettings(parsed?: Partial<StoreSettings>): StoreSettings {
     adminEmail: parsed?.adminEmail ?? defaultSettings.adminEmail,
     adminPhone: parsed?.adminPhone ?? defaultSettings.adminPhone,
     adminRecoveryEmail: parsed?.adminRecoveryEmail ?? defaultSettings.adminRecoveryEmail,
+    productImageScrollSeconds: clampProductImageScrollSeconds(
+      parsed?.productImageScrollSeconds ?? defaultSettings.productImageScrollSeconds,
+    ),
     vipEnabled: parsed?.vipEnabled ?? defaultSettings.vipEnabled,
     vipMinSpend: parsed?.vipMinSpend ?? defaultSettings.vipMinSpend,
     vipDiscountPercent: parsed?.vipDiscountPercent ?? defaultSettings.vipDiscountPercent,

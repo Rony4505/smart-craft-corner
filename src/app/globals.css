@@ -111,6 +111,39 @@ a {
   animation: drift 8s ease-in-out infinite alternate;
 }
 
+.product-reveal {
+  opacity: 0;
+  transform: translate3d(0, 32px, 0) scale(0.96);
+  filter: blur(6px);
+  transition:
+    opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.product-reveal.is-in {
+  opacity: 1;
+  transform: translate3d(0, 0, 0) scale(1);
+  filter: blur(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .product-reveal {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: none;
+  }
+}
+
+.field:disabled,
+.field[readonly] {
+  background: #f6f1ed;
+  color: #5a433c;
+  cursor: default;
+  opacity: 0.92;
+}
+
 .auth-filigree {
   background-image:
     radial-gradient(circle at 12px 12px, rgba(233, 30, 140, 0.22) 1.4px, transparent 1.8px),

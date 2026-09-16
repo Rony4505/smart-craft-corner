@@ -20,9 +20,6 @@ export default async function CollectionsPage() {
           <h1 className="font-[family-name:var(--font-display)] text-5xl font-bold text-[#4a1235] md:text-6xl">
             সব কালেকশন
           </h1>
-          <p className="mt-4 text-base leading-8 text-[#7a3a5c]">
-            হিজাব, নোজ নিকাব, ব্যাগ—সব এডিট এক জায়গায়।
-          </p>
         </div>
 
         <div className="mt-10 rounded-[1.75rem] bg-[#f4f5f7] px-4 py-8 md:px-8">

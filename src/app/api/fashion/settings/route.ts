@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { isFashionAdminAuthenticated } from "@/lib/fashion/customer-auth";
 import { isGmailAddress, normalizeEmail } from "@/lib/fashion/admin-security";
+import { clampProductImageScrollSeconds } from "@/lib/fashion/product-display";
 import { getStoreSettings, updateStoreSettings } from "@/lib/fashion/store";
 
 export async function GET() {
@@ -32,6 +33,11 @@ export async function PUT(request: Request) {
       );
     }
     body.adminRecoveryEmail = email;
+  }
+  if (body.productImageScrollSeconds != null) {
+    body.productImageScrollSeconds = clampProductImageScrollSeconds(
+      body.productImageScrollSeconds,
+    );
   }
   const settings = await updateStoreSettings(body);
   return NextResponse.json({ settings });
