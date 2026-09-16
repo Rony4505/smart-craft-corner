@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
+import { AccountAuthFrame } from "@/components/fashion/AccountAuthFrame";
+import { AccountOtpPin } from "@/components/fashion/AccountOtpPin";
 import { FashionButton } from "@/components/fashion/FashionButton";
-import { FashionShell } from "@/components/fashion/FashionShell";
 import { PasswordField } from "@/components/fashion/PasswordField";
 import { copy } from "@/lib/fashion/copy";
 
@@ -38,57 +39,61 @@ export function LoginForm() {
   }
 
   return (
-    <FashionShell>
-      <section className="mx-auto max-w-md px-5 py-20 md:px-8">
-        <h1 className="font-[family-name:var(--font-display)] text-4xl font-bold">
-          {copy.account.loginTitle}
-        </h1>
-        <form
-          onSubmit={handleSubmit}
-          className="mt-8 space-y-4 rounded-[2rem] border border-black/6 bg-white p-6 shadow-[0_24px_80px_rgba(48,27,20,0.06)]"
-        >
-          {error ? <p className="text-sm text-red-700">{error}</p> : null}
-          <label className="block">
-            <span className="text-sm text-[#9b7766]">ইমেইল</span>
-            <input
-              className="field mt-2"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </label>
-          <PasswordField
-            label={copy.form.password}
-            value={password}
-            onChange={setPassword}
+    <AccountAuthFrame
+      eyebrow="MEMBER ACCESS"
+      title={copy.account.loginTitle}
+      subtitle="Gmail ও পাসওয়ার্ড দিয়ে আপনার Noorzaa প্রোফাইলে ঢুকুন।"
+      footer={
+        <>
+          অ্যাকাউন্ট নেই?{" "}
+          <Link href="/account/register" className="font-semibold text-[#8f624e] underline">
+            নতুন অ্যাকাউন্ট তৈরি করুন
+          </Link>
+        </>
+      }
+    >
+      <form method="post" onSubmit={handleSubmit} className="space-y-4">
+        {error ? (
+          <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
+        ) : null}
+        <label className="block">
+          <span className="text-sm text-[#9b7766]">Gmail</span>
+          <input
+            className="field mt-2"
+            type="email"
+            name="email"
+            autoComplete="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
-          <FashionButton type="submit" disabled={loading}>
-            {loading ? "লগইন হচ্ছে..." : copy.nav.login}
-          </FashionButton>
-        </form>
-        <p className="mt-4 text-sm text-[#6f554a]">
-          অ্যাকাউন্ট নেই?{" "}
-          <Link href="/account/register" className="font-semibold underline">
-            রেজিস্টার করুন
-          </Link>
-        </p>
-      </section>
-    </FashionShell>
+        </label>
+        <PasswordField
+          label={copy.form.password}
+          value={password}
+          onChange={setPassword}
+          required
+        />
+        <FashionButton type="submit" disabled={loading} className="w-full bg-[#122d52] hover:bg-[#0d2240]">
+          {loading ? "লগইন হচ্ছে..." : "প্রোফাইলে প্রবেশ"}
+        </FashionButton>
+      </form>
+    </AccountAuthFrame>
   );
 }
 
 export function RegisterForm() {
   const router = useRouter();
   const [form, setForm] = useState({ name: "", email: "", phone: "", password: "" });
-  const [channel, setChannel] = useState<"email" | "phone">("email");
   const [step, setStep] = useState<"form" | "otp">("form");
   const [otp, setOtp] = useState("");
   const [debugOtp, setDebugOtp] = useState("");
   const [targetHint, setTargetHint] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState("");
+  const lastTried = useRef("");
+  const verifying = useRef(false);
 
   async function sendOtp(event: FormEvent) {
     event.preventDefault();
@@ -98,7 +103,7 @@ export function RegisterForm() {
     const res = await fetch("/api/fashion/auth", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ action: "register-send-otp", ...form, channel }),
+      body: JSON.stringify({ action: "register-send-otp", ...form, channel: "email" }),
     });
     const data = await res.json();
     setLoading(false);
@@ -107,162 +112,135 @@ export function RegisterForm() {
       return;
     }
     setDebugOtp(data.debugOtp || "");
-    setOtp(data.debugOtp ? String(data.debugOtp) : "");
+    setOtp("");
+    lastTried.current = "";
     setTargetHint(data.targetHint || form.email);
+    setStatus("");
     setStep("otp");
   }
 
-  async function verifyOtp(event: FormEvent) {
-    event.preventDefault();
-    event.stopPropagation();
+  async function verifyCode(code: string) {
+    if (verifying.current) return;
+    verifying.current = true;
     setLoading(true);
     setError("");
+    setStatus("ভেরিফাই হচ্ছে...");
     const res = await fetch("/api/fashion/auth", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         action: "register-verify",
         email: form.email,
-        code: otp,
+        code,
       }),
     });
     const data = await res.json();
-    setLoading(false);
     if (!res.ok) {
-      setError(data.error || "ভেরিফিকেশন ব্যর্থ");
+      verifying.current = false;
+      setLoading(false);
+      setStatus("");
+      setError(data.error || "OTP সঠিক নয়");
       return;
     }
+    setStatus("ভেরিফাই সম্পন্ন");
     router.push("/account");
     router.refresh();
   }
 
+  useEffect(() => {
+    const code = otp.replace(/\D/g, "");
+    if (step !== "otp" || code.length !== 6 || loading || code === lastTried.current) return;
+    lastTried.current = code;
+    void verifyCode(code);
+  }, [otp, step, loading, form.email]);
+
   return (
-    <FashionShell>
-      <section className="mx-auto max-w-md px-5 py-20 md:px-8">
-        <h1 className="font-[family-name:var(--font-display)] text-4xl font-bold">
-          {copy.account.registerTitle}
-        </h1>
-
-        {step === "form" ? (
-          <form
-            method="post"
-            action="/account/register"
-            onSubmit={sendOtp}
-            className="mt-8 space-y-4 rounded-[2rem] border border-black/6 bg-white p-6 shadow-[0_24px_80px_rgba(48,27,20,0.06)]"
-          >
-            {error ? <p className="text-sm text-red-700">{error}</p> : null}
-            {(
-              [
-                ["name", copy.form.name, "text"],
-                ["email", "Gmail / ইমেইল", "email"],
-                ["phone", "ফোন নম্বর", "tel"],
-              ] as const
-            ).map(([key, label, type]) => (
-              <label key={key} className="block">
-                <span className="text-sm text-[#9b7766]">{label}</span>
-                <input
-                  className="field mt-2"
-                  type={type}
-                  name={key}
-                  autoComplete={key === "email" ? "email" : key === "phone" ? "tel" : "name"}
-                  value={form[key]}
-                  onChange={(e) => setForm((c) => ({ ...c, [key]: e.target.value }))}
-                  required
-                />
-              </label>
-            ))}
-            <PasswordField
-              label={copy.form.password}
-              value={form.password}
-              onChange={(v) => setForm((c) => ({ ...c, password: v }))}
-              autoComplete="new-password"
-              required
-            />
-            <div>
-              <p className="mb-2 text-sm text-[#9b7766]">OTP পাঠাবেন কোথায়?</p>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setChannel("email")}
-                  className={`rounded-full px-4 py-2 text-sm font-semibold ${
-                    channel === "email"
-                      ? "bg-[#8f624e] text-white"
-                      : "border border-[#c9a890] bg-[#f3ebe4] text-[#1c1412]"
-                  }`}
-                >
-                  Gmail / Email
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setChannel("phone")}
-                  className={`rounded-full px-4 py-2 text-sm font-semibold ${
-                    channel === "phone"
-                      ? "bg-[#8f624e] text-white"
-                      : "border border-[#c9a890] bg-[#f3ebe4] text-[#1c1412]"
-                  }`}
-                >
-                  Phone
-                </button>
-              </div>
-            </div>
-            <FashionButton type="submit" disabled={loading}>
-              {loading ? "OTP পাঠানো হচ্ছে..." : "OTP পাঠান ও ভেরিফাই"}
-            </FashionButton>
-          </form>
-        ) : (
-          <form
-            method="post"
-            action="/account/register"
-            onSubmit={verifyOtp}
-            className="mt-8 space-y-4 rounded-[2rem] border border-black/6 bg-white p-6 shadow-[0_24px_80px_rgba(48,27,20,0.06)]"
-          >
-            {error ? <p className="text-sm text-red-700">{error}</p> : null}
-            <p className="text-sm text-[#6f554a]">
-              {channel === "email"
-                ? `${targetHint || "আপনার Gmail"}-এ OTP পাঠানো হয়েছে। ইনবক্স ও স্প্যাম ফোল্ডার চেক করুন।`
-                : "ফোন-এ OTP পাঠানো হয়েছে। কোডটি লিখুন।"}
-            </p>
-            {debugOtp ? (
-              <p className="rounded-xl border border-[#e8cc80] bg-[#fffbf0] px-4 py-3 text-center text-lg font-bold tracking-[0.35em] text-[#6b5420]">
-                {debugOtp}
-              </p>
-            ) : null}
-            <p className="text-xs text-[#9b7766]">
-              {debugOtp ? "উপরের OTP কোডটি নিচে লিখুন" : "Gmail থেকে পাওয়া ৬ সংখ্যার কোডটি লিখুন"}
-            </p>
-            <label className="block">
-              <span className="text-sm text-[#9b7766]">OTP কোড</span>
-              <input
-                className="field mt-2 tracking-[0.35em]"
-                name="otp"
-                autoComplete="one-time-code"
-                value={otp}
-                onChange={(e) => setOtp(e.target.value)}
-                required
-                maxLength={6}
-                inputMode="numeric"
-              />
-            </label>
-            <FashionButton type="submit" disabled={loading}>
-              {loading ? "যাচাই হচ্ছে..." : "অ্যাকাউন্ট তৈরি করুন"}
-            </FashionButton>
-            <button
-              type="button"
-              className="text-sm font-semibold text-[#8f624e]"
-              onClick={() => setStep("form")}
-            >
-              ← ফর্মে ফিরে যান
-            </button>
-          </form>
-        )}
-
-        <p className="mt-4 text-sm text-[#6f554a]">
+    <AccountAuthFrame
+      eyebrow="NEW MEMBER"
+      title={copy.account.registerTitle}
+      subtitle="OTP সবসময় আপনার Gmail-এ যাবে। ৬ সংখ্যা লেখা শেষ হলেই অ্যাকাউন্ট অটো ভেরিফাই হবে।"
+      footer={
+        <>
           ইতিমধ্যে অ্যাকাউন্ট আছে?{" "}
-          <Link href="/account/login" className="font-semibold underline">
+          <Link href="/account/login" className="font-semibold text-[#8f624e] underline">
             লগইন করুন
           </Link>
-        </p>
-      </section>
-    </FashionShell>
+        </>
+      }
+    >
+      {step === "form" ? (
+        <form method="post" action="/account/register" onSubmit={sendOtp} className="space-y-4">
+          {error ? (
+            <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
+          ) : null}
+          {(
+            [
+              ["name", copy.form.name, "text", "name"],
+              ["email", "Gmail", "email", "email"],
+              ["phone", "ফোন নম্বর", "tel", "tel"],
+            ] as const
+          ).map(([key, label, type, autoComplete]) => (
+            <label key={key} className="block">
+              <span className="text-sm text-[#9b7766]">{label}</span>
+              <input
+                className="field mt-2"
+                type={type}
+                name={key}
+                autoComplete={autoComplete}
+                value={form[key]}
+                onChange={(e) => setForm((c) => ({ ...c, [key]: e.target.value }))}
+                required
+              />
+            </label>
+          ))}
+          <PasswordField
+            label={copy.form.password}
+            value={form.password}
+            onChange={(v) => setForm((c) => ({ ...c, password: v }))}
+            autoComplete="new-password"
+            required
+          />
+          <p className="rounded-2xl border border-[#d4b896]/60 bg-[#fff8ee] px-4 py-3 text-sm text-[#6b5420]">
+            ভেরিফিকেশন কোড পাঠানো হবে আপনার Gmail-এ। আলাদা সিলেক্ট করার দরকার নেই।
+          </p>
+          <FashionButton type="submit" disabled={loading} className="w-full bg-[#122d52] hover:bg-[#0d2240]">
+            {loading ? "Gmail-এ OTP যাচ্ছে..." : "Gmail-এ OTP পাঠান"}
+          </FashionButton>
+        </form>
+      ) : (
+        <div className="space-y-4">
+          {error ? (
+            <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
+          ) : null}
+          <p className="text-sm leading-6 text-[#6f554a]">
+            {targetHint || "আপনার Gmail"}-এ OTP পাঠানো হয়েছে। ইনবক্স ও স্প্যাম ফোল্ডার চেক করুন।
+          </p>
+          {debugOtp ? (
+            <p className="rounded-xl border border-[#e8cc80] bg-[#fffbf0] px-4 py-3 text-center text-lg font-bold tracking-[0.35em] text-[#6b5420]">
+              {debugOtp}
+            </p>
+          ) : null}
+          <p className="text-xs text-[#9b7766]">{copy.account.otpHint}</p>
+          <AccountOtpPin value={otp} onChange={setOtp} disabled={loading} />
+          <p className="min-h-6 text-center text-sm font-semibold text-[#122d52]">
+            {status || (loading ? "ভেরিফাই হচ্ছে..." : "৬ সংখ্যা পূরণ হলেই অটো ভেরিফাই")}
+          </p>
+          <button
+            type="button"
+            className="text-sm font-semibold text-[#8f624e]"
+            onClick={() => {
+              setStep("form");
+              setOtp("");
+              setError("");
+              setStatus("");
+              lastTried.current = "";
+              verifying.current = false;
+            }}
+          >
+            ← ফর্মে ফিরে যান
+          </button>
+        </div>
+      )}
+    </AccountAuthFrame>
   );
 }

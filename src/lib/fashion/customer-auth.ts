@@ -144,6 +144,9 @@ export function sanitizeCustomer(customer: NonNullable<Awaited<ReturnType<typeof
     name: customer.name,
     email: customer.email,
     phone: customer.phone,
+    address: customer.address ?? "",
+    district: customer.district ?? "",
+    avatarUrl: customer.avatarUrl ?? "",
     verified: customer.verified,
     createdAt: customer.createdAt,
   };
