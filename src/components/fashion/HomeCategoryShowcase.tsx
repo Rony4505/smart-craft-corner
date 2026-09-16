@@ -29,6 +29,11 @@ export function HomeCategoryShowcase({ categories }: { categories: Category[] })
       </h2>
       <div className="mt-5">
         <CategoryCircleRow>
+          <CategoryCircle
+            href="/#products"
+            label={fc.search.allCategories}
+            selected={!selectedSlug}
+          />
           {categories.map((cat) => (
             <CategoryCircle
               key={cat.slug}

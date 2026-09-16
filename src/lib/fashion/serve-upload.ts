@@ -1,6 +1,9 @@
 import { mkdir, readFile, writeFile } from "fs/promises";
 import path from "path";
 import { fashionUploadDir } from "./paths";
+import { isSafeFashionUploadName } from "./upload-name";
+
+export { isSafeFashionUploadName };
 
 const CONTENT_TYPES: Record<string, string> = {
   jpg: "image/jpeg",
@@ -10,7 +13,6 @@ const CONTENT_TYPES: Record<string, string> = {
   gif: "image/gif",
 };
 
-const SAFE_NAME = /^fashion-[A-Za-z0-9._-]+\.(jpe?g|png|webp|gif)$/i;
 const MAX_BYTES = 20 * 1024 * 1024;
 /** Previous Noorzaa image host. Used only when the file is missing on this volume. */
 const DEFAULT_FALLBACK_ORIGIN = "https://smartcraftcorner.up.railway.app";
@@ -18,11 +20,6 @@ const DEFAULT_FALLBACK_ORIGIN = "https://smartcraftcorner.up.railway.app";
 export function contentTypeForUpload(name: string): string {
   const ext = name.split(".").pop()?.toLowerCase() || "jpg";
   return CONTENT_TYPES[ext] || "application/octet-stream";
-}
-
-export function isSafeFashionUploadName(name: string): boolean {
-  const safe = path.basename(name);
-  return Boolean(safe && safe === name && !safe.includes("..") && SAFE_NAME.test(safe));
 }
 
 export function fashionImageFallbackOrigin(): string | null {

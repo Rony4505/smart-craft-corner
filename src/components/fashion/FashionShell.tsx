@@ -3,7 +3,6 @@ import { FashionHeader } from "./FashionHeader";
 import { OrderBottomNav } from "./OrderBottomNav";
 import { SiteEntryPopup } from "./SiteEntryPopup";
 import { ChatSupportWidget } from "./ChatSupportWidget";
-import { DeveloperWatermark } from "./DeveloperCredit";
 import { fashionHeroBgClass, fashionInkClass, fashionPageBgClass } from "@/lib/fashion/theme";
 import { cn } from "@/lib/fashion/cn";
 
@@ -30,7 +29,6 @@ export function FashionShell({
         </div>
       </div>
       <div className={cn("flex-1", fashionInkClass)}>{children}</div>
-      <DeveloperWatermark />
       <FashionFooter />
       <OrderBottomNav />
     </div>

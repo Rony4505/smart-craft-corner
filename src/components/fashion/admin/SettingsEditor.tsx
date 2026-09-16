@@ -4,6 +4,7 @@ import { useState, type FormEvent } from "react";
 import { FashionButton } from "@/components/fashion/FashionButton";
 import { PasswordField } from "@/components/fashion/PasswordField";
 import { useFashionCopy } from "@/lib/fashion/use-fashion-copy";
+import { clampProductImageScrollSeconds } from "@/lib/fashion/product-display";
 import type {
   AboutPillar,
   FaqItem,
@@ -480,6 +481,22 @@ export function SettingsEditor({
               onChange={(v) => patch("showFaq", v)}
             />
           </div>
+
+          <Field label="প্রোডাক্ট ছবি স্ক্রল সময় (সেকেন্ড)">
+            <input
+              className="field"
+              type="number"
+              min={1}
+              max={10}
+              value={settings.productImageScrollSeconds ?? 2}
+              onChange={(e) =>
+                patch("productImageScrollSeconds", clampProductImageScrollSeconds(e.target.value))
+              }
+            />
+          </Field>
+          <p className="text-xs text-[#7a5c50]">
+            একাধিক ছবি থাকলে প্রোডাক্ট কার্ডে অটো স্ক্রল — ডিফল্ট ২ সেকেন্ড।
+          </p>
 
           <DualText
             label="Features title"

@@ -1,8 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { CategoryCircle, CategoryCircleRow } from "@/components/fashion/CategoryCircle";
+import { useSearchParams } from "next/navigation";
 import { ProductGrid } from "@/components/fashion/ProductGrid";
 import { VisibleSelect } from "@/components/fashion/VisibleSelect";
 import { getEffectivePrice } from "@/lib/fashion/pricing";
@@ -10,6 +9,7 @@ import { sortProductsByDisplayPriority } from "@/lib/fashion/product-sort";
 import { localeEyebrowClass } from "@/lib/fashion/locale-text-style";
 import { useFashionCopy } from "@/lib/fashion/use-fashion-copy";
 import { filterProductsByCategory } from "@/lib/fashion/category-match";
+import { showHomeMixSections } from "@/lib/fashion/product-display";
 import type { Category, Product } from "@/lib/fashion/types";
 
 type PriceSort = "default" | "price-asc" | "price-desc";
@@ -78,20 +78,20 @@ function Pagination({
 
 function ProductSection({
   title,
-  subtitle,
   products,
   sort,
   onSortChange,
   locale,
   sectionId,
+  imageScrollSeconds,
 }: {
   title: string;
-  subtitle?: string;
   products: Product[];
   sort: PriceSort;
   onSortChange: (value: PriceSort) => void;
   locale: "bn" | "en";
   sectionId?: string;
+  imageScrollSeconds?: number;
 }) {
   const sorted = useMemo(() => sortProducts(products, sort), [products, sort]);
   const [page, setPage] = useState(1);
@@ -107,14 +107,11 @@ function ProductSection({
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className={localeEyebrowClass(locale)}>{title}</p>
-            {subtitle ? (
-              <p className="mt-2 max-w-2xl text-base leading-7 text-[#6e5449]">{subtitle}</p>
-            ) : null}
           </div>
           <PriceSortSelect value={sort} onChange={onSortChange} />
         </div>
         <div className="mt-8">
-          <ProductGrid products={pageItems} />
+          <ProductGrid products={pageItems} imageScrollSeconds={imageScrollSeconds} />
         </div>
         <Pagination
           page={safePage}
@@ -136,6 +133,7 @@ export function HomeProductBrowse({
   offerProducts,
   showNewProducts = true,
   showOffers = true,
+  imageScrollSeconds = 2,
 }: {
   categories: Category[];
   products: Product[];
@@ -143,9 +141,9 @@ export function HomeProductBrowse({
   offerProducts: Product[];
   showNewProducts?: boolean;
   showOffers?: boolean;
+  imageScrollSeconds?: number;
 }) {
   const { fc, locale } = useFashionCopy();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const categorySlug = searchParams.get("category")?.trim() || "";
   const [categorySort, setCategorySort] = useState<PriceSort>("default");
@@ -158,19 +156,9 @@ export function HomeProductBrowse({
   const page = pageState.page;
   const setPage = (next: number) => setPageState({ slug: categorySlug, page: next });
 
-  function selectCategory(slug: string) {
-    const params = new URLSearchParams(searchParams.toString());
-    if (slug) params.set("category", slug);
-    else params.delete("category");
-    const qs = params.toString();
-    router.replace(`${qs ? `/?${qs}` : "/"}#products`, { scroll: false });
-    window.setTimeout(() => {
-      document.getElementById("products")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    }, 80);
-  }
-
-  const visibleOffers = showOffers ? offerProducts : [];
-  const visibleNewProducts = showNewProducts ? newProducts : [];
+  const mix = showHomeMixSections(categorySlug);
+  const visibleOffers = mix && showOffers ? offerProducts : [];
+  const visibleNewProducts = mix && showNewProducts ? newProducts : [];
 
   const categoryProducts = useMemo(() => {
     const filtered = filterProductsByCategory(products, categorySlug || undefined, categories);
@@ -187,24 +175,24 @@ export function HomeProductBrowse({
       {visibleOffers.length > 0 ? (
         <ProductSection
           title={fc.home.offers}
-          subtitle={fc.home.offersSub}
           products={visibleOffers}
           sort={offerSort}
           onSortChange={setOfferSort}
           locale={locale}
           sectionId="offers"
+          imageScrollSeconds={imageScrollSeconds}
         />
       ) : null}
 
       {visibleNewProducts.length > 0 ? (
         <ProductSection
           title={fc.home.newProducts}
-          subtitle={fc.home.newProductsSub}
           products={visibleNewProducts}
           sort={newSort}
           onSortChange={setNewSort}
           locale={locale}
           sectionId="new"
+          imageScrollSeconds={imageScrollSeconds}
         />
       ) : null}
 
@@ -212,13 +200,11 @@ export function HomeProductBrowse({
         <div className="mx-auto max-w-7xl px-5 py-14 md:px-8 md:py-20">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className={localeEyebrowClass(locale)}>{fc.home.categoryTitle}</p>
-              <h2 className="mt-2 font-[family-name:var(--font-display)] text-3xl font-bold md:text-4xl">
+              <h2 className="font-[family-name:var(--font-display)] text-3xl font-bold md:text-4xl">
                 {selectedCategory
                   ? selectedCategory.titleBn || selectedCategory.title
                   : fc.home.allProducts}
               </h2>
-              <p className="mt-2 text-sm text-[#6e5449]">{fc.home.categoryHint}</p>
             </div>
             <PriceSortSelect
               value={categorySort}
@@ -229,27 +215,8 @@ export function HomeProductBrowse({
             />
           </div>
 
-          <div className="mt-6">
-            <CategoryCircleRow>
-              <CategoryCircle
-                label={fc.search.allCategories}
-                selected={!categorySlug}
-                onClick={() => selectCategory("")}
-              />
-              {categories.map((cat) => (
-                <CategoryCircle
-                  key={cat.slug}
-                  label={locale === "en" ? cat.title || cat.titleBn : cat.titleBn || cat.title}
-                  imageUrl={cat.imageUrl}
-                  selected={categorySlug === cat.slug}
-                  onClick={() => selectCategory(cat.slug)}
-                />
-              ))}
-            </CategoryCircleRow>
-          </div>
-
           <div className="mt-8">
-            <ProductGrid products={pageItems} />
+            <ProductGrid products={pageItems} imageScrollSeconds={imageScrollSeconds} />
           </div>
           <Pagination
             page={safePage}

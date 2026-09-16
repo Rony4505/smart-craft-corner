@@ -148,6 +148,8 @@ export type StoreSettings = {
   adminPhone?: string;
   /** Gmail used only for forgot-password recovery — not for admin login OTP. */
   adminRecoveryEmail?: string;
+  /** Seconds between product-card gallery slides. Default 2. */
+  productImageScrollSeconds?: number;
 };
 
 export type Product = {

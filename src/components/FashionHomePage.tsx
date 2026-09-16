@@ -6,7 +6,6 @@ import { HomeProductBrowse } from "@/components/fashion/HomeProductBrowse";
 import { PromoCarousel } from "@/components/fashion/PromoCarousel";
 import { HomeCouponStrip } from "@/components/fashion/HomeCouponStrip";
 import { ChatSupportWidget } from "@/components/fashion/ChatSupportWidget";
-import { DeveloperWatermark } from "@/components/fashion/DeveloperCredit";
 import { AnnouncementBar } from "@/components/fashion/AnnouncementBar";
 import { OrderBottomNav } from "@/components/fashion/OrderBottomNav";
 import { SiteEntryPopup } from "@/components/fashion/SiteEntryPopup";
@@ -66,7 +65,6 @@ export async function FashionHomePage() {
             </div>
           ) : null}
 
-          {/* Image 1: hero title/CTAs replaced by circular top categories */}
           <Suspense fallback={null}>
             <HomeCategoryShowcase categories={categories} />
           </Suspense>
@@ -87,11 +85,10 @@ export async function FashionHomePage() {
           offerProducts={offers}
           showNewProducts={settings.showNewProducts !== false}
           showOffers={settings.showOffers !== false}
+          imageScrollSeconds={settings.productImageScrollSeconds}
         />
       </Suspense>
 
-      {/* Image 3–5 text cards removed */}
-      <DeveloperWatermark />
       <FashionFooter />
       <OrderBottomNav />
     </main>

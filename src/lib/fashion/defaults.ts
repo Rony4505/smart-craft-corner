@@ -160,6 +160,7 @@ export const defaultSettings: StoreSettings = {
   adminEmail: "",
   adminPhone: "",
   adminRecoveryEmail: "",
+  productImageScrollSeconds: 2,
 };
 
 export const defaultCategories: Category[] = [

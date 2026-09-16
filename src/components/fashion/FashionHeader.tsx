@@ -298,9 +298,6 @@ export function FashionHeader({ variant = "light" }: { variant?: "light" | "dark
       <div className="relative overflow-hidden rounded-[2rem] border border-[#f3c6dc]/80 bg-white px-6 py-8 shadow-[0_18px_60px_rgba(194,24,107,0.1)] md:px-10 md:py-10">
         <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden rounded-[2rem]">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_12%_0%,rgba(233,30,140,0.16),transparent_52%),radial-gradient(ellipse_at_90%_100%,rgba(194,24,107,0.12),transparent_48%)]" />
-          <p className="absolute bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap font-[family-name:var(--font-display)] text-[10px] font-semibold tracking-[0.38em] text-[#c2186b]/55 uppercase md:text-xs">
-            for her · নারীর ফ্যাশন
-          </p>
         </div>
 
         <div className="relative z-10 flex min-h-[5.25rem] items-center justify-center md:min-h-[6.25rem]">
