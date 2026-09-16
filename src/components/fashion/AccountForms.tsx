@@ -74,7 +74,7 @@ export function LoginForm() {
           onChange={setPassword}
           required
         />
-        <FashionButton type="submit" disabled={loading} className="w-full bg-[#122d52] hover:bg-[#0d2240]">
+        <FashionButton type="submit" disabled={loading} className="w-full">
           {loading ? "লগইন হচ্ছে..." : "প্রোফাইলে প্রবেশ"}
         </FashionButton>
       </form>
@@ -203,7 +203,7 @@ export function RegisterForm() {
           <p className="rounded-2xl border border-[#d4b896]/60 bg-[#fff8ee] px-4 py-3 text-sm text-[#6b5420]">
             ভেরিফিকেশন কোড পাঠানো হবে আপনার Gmail-এ। আলাদা সিলেক্ট করার দরকার নেই।
           </p>
-          <FashionButton type="submit" disabled={loading} className="w-full bg-[#122d52] hover:bg-[#0d2240]">
+          <FashionButton type="submit" disabled={loading} className="w-full">
             {loading ? "Gmail-এ OTP যাচ্ছে..." : "Gmail-এ OTP পাঠান"}
           </FashionButton>
         </form>
@@ -222,7 +222,7 @@ export function RegisterForm() {
           ) : null}
           <p className="text-xs text-[#9b7766]">{copy.account.otpHint}</p>
           <AccountOtpPin value={otp} onChange={setOtp} disabled={loading} />
-          <p className="min-h-6 text-center text-sm font-semibold text-[#122d52]">
+          <p className="min-h-6 text-center text-sm font-semibold text-[#c2186b]">
             {status || (loading ? "ভেরিফাই হচ্ছে..." : "৬ সংখ্যা পূরণ হলেই অটো ভেরিফাই")}
           </p>
           <button

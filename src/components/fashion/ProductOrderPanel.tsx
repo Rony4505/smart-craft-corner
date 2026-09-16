@@ -106,21 +106,21 @@ export function ProductOrderPanel({ product }: { product: Product }) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-1 text-sm text-[#b8c9de]">
+      <div className="flex flex-wrap items-center gap-1 text-sm text-[#7a3a5c]">
         {Array.from({ length: 5 }).map((_, i) => (
           <span
             key={i}
             className={
-              i < Math.round(avgRating) ? "text-[#f0b429]" : "text-[#4a6080]"
+              i < Math.round(avgRating) ? "text-[#e91e8c]" : "text-[#f3c6dc]"
             }
           >
             ★
           </span>
         ))}
-        <span className="ml-1 font-semibold text-white">
+        <span className="ml-1 font-semibold text-[#4a1235]">
           {reviewCount ? `${avgRating.toFixed(2)}/5` : "0.00/5"}
         </span>
-        <a href="#reviews" className="ml-2 text-[#8eb4d9] underline-offset-2 hover:text-white hover:underline">
+        <a href="#reviews" className="ml-2 text-[#c2186b] underline-offset-2 hover:text-[#8e1050] hover:underline">
           {fc.product.seeReviews}
         </a>
       </div>
@@ -192,9 +192,9 @@ export function ProductOrderPanel({ product }: { product: Product }) {
         </div>
       </div>
 
-      <p className="text-sm text-[#e8eef7]">
-        <span className="font-bold text-[#8eb4d9]">{fc.product.brand} :</span>{" "}
-        <span className="font-semibold text-white">
+      <p className="text-sm text-[#4a1235]">
+        <span className="font-bold text-[#c2186b]">{fc.product.brand} :</span>{" "}
+        <span className="font-semibold text-[#4a1235]">
           {settings?.brandName ?? copy.brand}
         </span>
       </p>
@@ -227,7 +227,7 @@ export function ProductOrderPanel({ product }: { product: Product }) {
           type="button"
           disabled={!inStock || !color}
           onClick={() => addToCart()}
-          className="rounded-xl bg-[linear-gradient(135deg,#9d6b8a,#c9a0b8)] px-4 py-3 text-sm font-bold text-white shadow-md disabled:opacity-50"
+          className="rounded-xl bg-[linear-gradient(135deg,#c2186b,#e91e8c)] px-4 py-3 text-sm font-bold text-white shadow-md disabled:opacity-50"
         >
           {added ? fc.actions.addedToCart : fc.actions.addToCart}
         </button>
@@ -235,7 +235,7 @@ export function ProductOrderPanel({ product }: { product: Product }) {
           type="button"
           disabled={!inStock || !color}
           onClick={() => addToCart("checkout")}
-          className="rounded-xl bg-[#2b1d19] px-4 py-3 text-sm font-bold text-white disabled:opacity-50"
+          className="rounded-xl bg-[#8e1050] px-4 py-3 text-sm font-bold text-white disabled:opacity-50"
         >
           {fc.product.buyNow}
         </button>
@@ -244,7 +244,7 @@ export function ProductOrderPanel({ product }: { product: Product }) {
       {phone ? (
         <a
           href={phone.tel}
-          className="flex items-center justify-center gap-2 rounded-xl bg-[#5c3d5e] px-4 py-3 text-sm font-bold text-white"
+          className="flex items-center justify-center gap-2 rounded-xl bg-[#c2186b] px-4 py-3 text-sm font-bold text-white"
         >
           📞 {phone.display}
         </a>
@@ -255,7 +255,7 @@ export function ProductOrderPanel({ product }: { product: Product }) {
           href={`${whatsapp.wa}?text=${encodeURIComponent(`${title} — ${fc.product.askAbout}`)}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center justify-center gap-2 rounded-xl border-2 border-[#8eb4d9] bg-white px-4 py-3 text-sm font-bold !text-[#0a1628] shadow-sm transition hover:bg-[#e8eef7]"
+          className="flex items-center justify-center gap-2 rounded-xl border-2 border-[#c2186b] bg-white px-4 py-3 text-sm font-bold !text-[#8e1050] shadow-sm transition hover:bg-[#fff5f8]"
         >
           💬 {fc.product.askAbout}
         </a>

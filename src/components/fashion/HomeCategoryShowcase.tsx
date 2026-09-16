@@ -12,8 +12,8 @@ export function HomeCategoryShowcase({ categories }: { categories: Category[] })
 
   if (!categories.length) {
     return (
-      <div className="mt-8 rounded-[1.5rem] border border-white/15 bg-white/8 px-5 py-8 text-center backdrop-blur-sm">
-        <p className="text-sm text-[#c5d4e8]">
+      <div className="mt-8 rounded-[1.5rem] border border-[#f3c6dc] bg-white/80 px-5 py-8 text-center">
+        <p className="text-sm text-[#7a3a5c]">
           {locale === "bn"
             ? "শীঘ্রই ক্যাটাগরি যোগ করা হবে।"
             : "Categories will appear here soon."}

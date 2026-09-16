@@ -146,6 +146,8 @@ export type StoreSettings = {
   adminUsername?: string;
   adminEmail?: string;
   adminPhone?: string;
+  /** Gmail used only for forgot-password recovery — not for admin login OTP. */
+  adminRecoveryEmail?: string;
 };
 
 export type Product = {

@@ -65,8 +65,8 @@ function Pagination({
           onClick={() => onChange(n)}
           className={`min-w-10 rounded-full px-3 py-2 text-sm font-semibold transition ${
             page === n
-              ? "bg-[#2b1d19] text-white"
-              : "border border-black/10 bg-white text-[#5b4339] hover:bg-[#f0e8e2]"
+              ? "bg-[linear-gradient(135deg,#c2186b,#e91e8c)] text-white"
+              : "border border-[#f3c6dc] bg-white text-[#8e1050] hover:bg-[#fff5f8]"
           }`}
         >
           {n}

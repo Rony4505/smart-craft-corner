@@ -57,7 +57,7 @@ export function HomeCouponStrip({
                 onClick={() => setSelectedCoupon(coupon)}
                 className="group flex min-w-[9.5rem] max-w-[11rem] flex-1 items-center gap-3 rounded-2xl border-2 border-dashed border-[#c9a0b8]/55 bg-white px-3.5 py-3 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-[#9d6b8a]/70 hover:shadow-md sm:min-w-[10.5rem] sm:px-4"
               >
-                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[linear-gradient(135deg,#9d6b8a,#c9a0b8)] text-sm font-bold text-white shadow-inner">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[linear-gradient(135deg,#c2186b,#e91e8c)] text-sm font-bold text-white shadow-inner">
                   {coupon.discountType === "percent" ? "%" : "৳"}
                 </span>
                 <span className="min-w-0">

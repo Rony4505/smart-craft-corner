@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { DeveloperCreditFooter } from "./DeveloperCredit";
+import { NoorzaaWordmark } from "./NoorzaaWordmark";
 import { useFashionCopy } from "@/lib/fashion/use-fashion-copy";
 import { tSetting } from "@/lib/fashion/locale-settings";
 import { copy } from "@/lib/fashion/copy";
@@ -20,7 +21,7 @@ function FooterIconLink({
   external?: boolean;
 }) {
   const className =
-    "flex h-12 w-12 items-center justify-center rounded-2xl border border-white/15 bg-white/10 text-[#d8e4f2] transition hover:-translate-y-0.5 hover:border-[#8eb4d9]/50 hover:bg-white/15 hover:shadow-md";
+    "flex h-12 w-12 items-center justify-center rounded-2xl border border-white/20 bg-white/10 text-[#fde8f2] transition hover:-translate-y-0.5 hover:border-white/50 hover:bg-white/18 hover:shadow-md";
 
   if (external) {
     return (
@@ -63,17 +64,17 @@ export function FashionFooter() {
   );
 
   return (
-    <footer className="border-t border-white/10 bg-[linear-gradient(165deg,#081220_0%,#0a1628_45%,#0f2744_100%)] px-5 py-14 text-[#d8e4f2] md:px-8">
+    <footer className="border-t border-[#f3c6dc] bg-[linear-gradient(165deg,#8e1050_0%,#c2186b_55%,#d81b60_100%)] px-5 py-14 text-[#fde8f2] md:px-8">
       <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-[1.2fr_0.8fr_0.8fr]">
         <div>
-          <p className="font-[family-name:var(--font-display)] text-3xl font-bold tracking-[0.18em] uppercase text-white">
-            {brand}
-          </p>
-          <p className="mt-4 max-w-md text-base leading-8 text-[#b8c9de]">{blurb}</p>
+          <div className="inline-flex rounded-2xl bg-white px-4 py-3 shadow-sm">
+            <NoorzaaWordmark href="/" className="max-w-[14rem]" />
+          </div>
+          <p className="mt-4 max-w-md text-base leading-8 text-[#f8d0e4]">{blurb}</p>
         </div>
 
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[#8eb4d9]">
+          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-white/80">
             {fc.footer.explore}
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
@@ -93,7 +94,7 @@ export function FashionFooter() {
         </div>
 
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[#8eb4d9]">
+          <p className="text-sm font-semibold uppercase tracking-[0.24em] text-white/80">
             {fc.footer.support}
           </p>
           <div className="mt-4 flex flex-wrap gap-3">
@@ -116,7 +117,7 @@ export function FashionFooter() {
         </div>
       </div>
 
-      <div className="mx-auto mt-10 max-w-7xl border-t border-white/10 pt-6 text-sm text-[#8ea8c4]">
+      <div className="mx-auto mt-10 max-w-7xl border-t border-white/15 pt-6 text-sm text-[#f8d0e4]">
         © {new Date().getFullYear()} {brand}. {fc.footer.rights}
       </div>
       <DeveloperCreditFooter />

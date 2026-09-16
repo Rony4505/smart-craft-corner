@@ -6,6 +6,6 @@ export function ProductGridTitle({ kind }: { kind: "empty" | "related" }) {
   const { fc } = useFashionCopy();
   if (kind === "empty") return <>{fc.home.emptyCategory}</>;
   return (
-    <h2 className="font-[family-name:var(--font-display)] text-4xl font-bold text-white">{fc.home.related}</h2>
+    <h2 className="font-[family-name:var(--font-display)] text-4xl font-bold text-[#4a1235]">{fc.home.related}</h2>
   );
 }

@@ -69,7 +69,7 @@ export default function CartPage() {
               ))}
             </div>
 
-            <aside className="rounded-[2rem] border border-black/6 bg-[#2b1d19] p-6 text-white shadow-[0_30px_90px_rgba(48,27,20,0.18)]">
+            <aside className="rounded-[2rem] border border-[#f3c6dc] bg-[linear-gradient(165deg,#8e1050,#c2186b)] p-6 text-white shadow-[0_30px_90px_rgba(194,24,107,0.18)]">
               <h2 className="font-[family-name:var(--font-display)] text-3xl font-bold">{copy.cart.summary}</h2>
               <div className="mt-6 space-y-3 text-white/78">
                 <div className="flex justify-between"><span>{copy.cart.subtotal}</span><span>{formatBdt(subtotal)}</span></div>

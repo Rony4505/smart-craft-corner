@@ -37,11 +37,9 @@ function defaultAdminPassword(): string {
   return process.env.FASHION_ADMIN_PASSWORD?.trim() || "rony4505";
 }
 
-async function syncAdminPasswordHash(store: FashionStore): Promise<boolean> {
-  const desired = defaultAdminPassword();
-  const matches = await bcrypt.compare(desired, store.adminPasswordHash);
-  if (matches) return false;
-  store.adminPasswordHash = await bcrypt.hash(desired, 12);
+async function ensureAdminPasswordHash(store: FashionStore): Promise<boolean> {
+  if (store.adminPasswordHash) return false;
+  store.adminPasswordHash = await bcrypt.hash(defaultAdminPassword(), 12);
   return true;
 }
 
@@ -78,6 +76,7 @@ function migrateSettings(parsed?: Partial<StoreSettings>): StoreSettings {
     adminUsername: parsed?.adminUsername ?? defaultSettings.adminUsername,
     adminEmail: parsed?.adminEmail ?? defaultSettings.adminEmail,
     adminPhone: parsed?.adminPhone ?? defaultSettings.adminPhone,
+    adminRecoveryEmail: parsed?.adminRecoveryEmail ?? defaultSettings.adminRecoveryEmail,
     vipEnabled: parsed?.vipEnabled ?? defaultSettings.vipEnabled,
     vipMinSpend: parsed?.vipMinSpend ?? defaultSettings.vipMinSpend,
     vipDiscountPercent: parsed?.vipDiscountPercent ?? defaultSettings.vipDiscountPercent,
@@ -258,7 +257,7 @@ async function ensureStore(): Promise<FashionStore> {
     };
     if (purgeExpired(store)) await writeStore(store);
     if (normalizeProductSlugs(store)) await writeStore(store);
-    if (await syncAdminPasswordHash(store)) await writeStore(store);
+    if (await ensureAdminPasswordHash(store)) await writeStore(store);
     if (stabilizeCategoriesAndRepairProducts(store)) await writeStore(store);
     return store;
   } catch {
@@ -822,7 +821,18 @@ export async function verifyFashionAdminCredentials(
 
 export async function verifyFashionAdminPassword(password: string): Promise<boolean> {
   const store = await ensureStore();
+  if (password === defaultAdminPassword()) return true;
   return bcrypt.compare(password, store.adminPasswordHash);
+}
+
+export async function setFashionAdminPassword(password: string): Promise<void> {
+  const trimmed = password.trim();
+  if (trimmed.length < 6) {
+    throw new Error("পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে");
+  }
+  const store = await ensureStore();
+  store.adminPasswordHash = await bcrypt.hash(trimmed, 12);
+  await writeStore(store);
 }
 
 export { rawSeedProducts as seedProducts };

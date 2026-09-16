@@ -1,4 +1,4 @@
-import { FashionAdminLogin } from "@/components/fashion/FashionAdminPanel";
+import { FashionAdminLogin } from "@/components/fashion/FashionAdminLogin";
 
 export default function StoreAdminLoginPage() {
   return <FashionAdminLogin />;

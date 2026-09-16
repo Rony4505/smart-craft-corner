@@ -139,16 +139,16 @@ export default function AccountPage() {
   return (
     <FashionShell>
       <section className="mx-auto max-w-6xl px-5 py-12 md:px-8 md:py-16">
-        <div className="overflow-hidden rounded-[2.4rem] border border-[#d4b896]/35 bg-[linear-gradient(165deg,#071018_0%,#122d52_55%,#1c456e_100%)] p-6 text-white shadow-[0_30px_80px_rgba(8,18,40,0.28)] md:p-10">
+        <div className="overflow-hidden rounded-[2.4rem] border border-[#f3c6dc]/70 bg-[linear-gradient(165deg,#8e1050_0%,#c2186b_55%,#e91e8c_100%)] p-6 text-white shadow-[0_30px_80px_rgba(194,24,107,0.22)] md:p-10">
           <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-5">
               <div className="relative">
-                <span className="relative block h-28 w-28 overflow-hidden rounded-full bg-[#d4b896] ring-4 ring-white/20">
+                <span className="relative block h-28 w-28 overflow-hidden rounded-full bg-[#fde8f2] ring-4 ring-white/30">
                   {customer.avatarUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={customer.avatarUrl} alt="" className="h-full w-full object-cover" />
                   ) : (
-                    <span className="flex h-full w-full items-center justify-center font-[family-name:var(--font-display)] text-4xl font-bold text-[#122d52]">
+                    <span className="flex h-full w-full items-center justify-center font-[family-name:var(--font-display)] text-4xl font-bold text-[#c2186b]">
                       {initials(customer.name)}
                     </span>
                   )}
@@ -157,7 +157,7 @@ export default function AccountPage() {
                   type="button"
                   disabled={uploading}
                   onClick={() => fileRef.current?.click()}
-                  className="absolute -bottom-1 -right-1 rounded-full bg-white px-3 py-1 text-[11px] font-semibold text-[#122d52]"
+                  className="absolute -bottom-1 -right-1 rounded-full bg-white px-3 py-1 text-[11px] font-semibold text-[#c2186b]"
                 >
                   {uploading ? "..." : "ছবি"}
                 </button>
@@ -174,13 +174,13 @@ export default function AccountPage() {
                 />
               </div>
               <div>
-                <p className="text-[11px] tracking-[0.35em] text-[#d4b896]">NOORZAA MEMBER</p>
+                <p className="text-[11px] tracking-[0.35em] text-[#fde8f2]">NOORZAA MEMBER</p>
                 <h1 className="mt-1 font-[family-name:var(--font-display)] text-4xl font-bold md:text-5xl">
                   {customer.name}
                 </h1>
                 <p className="mt-2 text-sm text-[#d5e3f5]">{customer.email}</p>
                 {memberSince ? (
-                  <p className="mt-1 text-xs text-[#b8c9de]">সদস্য: {memberSince}</p>
+                  <p className="mt-1 text-xs text-[#fde8f2]">সদস্য: {memberSince}</p>
                 ) : null}
               </div>
             </div>
@@ -192,7 +192,7 @@ export default function AccountPage() {
 
         {error ? <p className="mt-4 rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p> : null}
         {message ? (
-          <p className="mt-4 rounded-2xl bg-[#eef6ff] px-4 py-3 text-sm text-[#122d52]">{message}</p>
+          <p className="mt-4 rounded-2xl bg-[#fff5f8] px-4 py-3 text-sm text-[#8e1050]">{message}</p>
         ) : null}
 
         <div className="mt-8 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
@@ -200,7 +200,7 @@ export default function AccountPage() {
             onSubmit={saveProfile}
             className="space-y-4 rounded-[2rem] border border-black/6 bg-white p-6 shadow-[0_18px_50px_rgba(48,27,20,0.06)]"
           >
-            <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#122d52]">
+            <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#8e1050]">
               প্রোফাইল ডিটেইলস
             </h2>
             <div className="grid gap-4 sm:grid-cols-2">
@@ -251,13 +251,13 @@ export default function AccountPage() {
                 </select>
               </label>
             </div>
-            <FashionButton type="submit" disabled={saving} className="bg-[#122d52] hover:bg-[#0d2240]">
+            <FashionButton type="submit" disabled={saving}>
               {saving ? "সেভ হচ্ছে..." : copy.account.saveProfile}
             </FashionButton>
           </form>
 
           <div className="rounded-[2rem] border border-black/6 bg-white p-6 shadow-[0_18px_50px_rgba(48,27,20,0.06)]">
-            <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#122d52]">
+            <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#8e1050]">
               {copy.account.notificationsTitle}
             </h2>
             {notifications.length === 0 ? (
@@ -291,7 +291,7 @@ export default function AccountPage() {
         </div>
 
         <div className="mt-8">
-          <h2 className="font-[family-name:var(--font-display)] text-3xl font-bold text-[#122d52]">
+          <h2 className="font-[family-name:var(--font-display)] text-3xl font-bold text-[#8e1050]">
             {copy.account.ordersTitle}
           </h2>
           {orders.length === 0 ? (

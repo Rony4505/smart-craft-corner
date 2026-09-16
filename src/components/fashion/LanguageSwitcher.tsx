@@ -26,7 +26,7 @@ export function LanguageSwitcher({
         onClick={() => setLocale("bn")}
         className={cn(
           "px-3 py-1.5 transition",
-          locale === "bn" ? "bg-[#8f624e] text-white" : "text-[#6f554a] hover:bg-[#faf4f0]",
+          locale === "bn" ? "bg-[#c2186b] text-white" : "text-[#8e1050] hover:bg-[#fff5f8]",
           compact && "px-2.5 py-1",
         )}
       >
@@ -37,7 +37,7 @@ export function LanguageSwitcher({
         onClick={() => setLocale("en")}
         className={cn(
           "px-3 py-1.5 transition",
-          locale === "en" ? "bg-[#8f624e] text-white" : "text-[#6f554a] hover:bg-[#faf4f0]",
+          locale === "en" ? "bg-[#c2186b] text-white" : "text-[#8e1050] hover:bg-[#fff5f8]",
           compact && "px-2.5 py-1",
         )}
       >

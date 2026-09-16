@@ -43,8 +43,8 @@ export function AddToCartPanel({ product }: { product: Product }) {
               onClick={() => setSize(option)}
               className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
                 size === option
-                  ? "bg-[#2b1d19] text-white"
-                  : "border border-black/8 bg-[#faf4f0] text-[#5b4339]"
+                  ? "bg-[linear-gradient(135deg,#c2186b,#e91e8c)] text-white"
+                  : "border border-[#f3c6dc] bg-[#fff5f8] text-[#8e1050]"
               }`}
             >
               {option}
@@ -63,8 +63,8 @@ export function AddToCartPanel({ product }: { product: Product }) {
               onClick={() => setColor(option.name)}
               className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition ${
                 color === option.name
-                  ? "bg-[#2b1d19] text-white"
-                  : "border border-black/8 bg-[#faf4f0] text-[#5b4339]"
+                  ? "bg-[linear-gradient(135deg,#c2186b,#e91e8c)] text-white"
+                  : "border border-[#f3c6dc] bg-[#fff5f8] text-[#8e1050]"
               }`}
             >
               <span

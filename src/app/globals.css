@@ -113,9 +113,9 @@ a {
 
 .auth-filigree {
   background-image:
-    radial-gradient(circle at 12px 12px, rgba(212, 184, 150, 0.22) 1.4px, transparent 1.8px),
-    linear-gradient(135deg, rgba(255, 255, 255, 0.04) 25%, transparent 25%),
-    linear-gradient(225deg, rgba(255, 255, 255, 0.04) 25%, transparent 25%);
+    radial-gradient(circle at 12px 12px, rgba(233, 30, 140, 0.22) 1.4px, transparent 1.8px),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(255, 255, 255, 0.08) 25%, transparent 25%);
   background-size: 36px 36px, 28px 28px, 28px 28px;
 }
 
@@ -149,8 +149,8 @@ select {
 }
 
 .field:focus {
-  border-color: #8f624e;
-  box-shadow: 0 0 0 3px rgba(143, 98, 78, 0.2);
+  border-color: #c2186b;
+  box-shadow: 0 0 0 3px rgba(194, 24, 107, 0.2);
 }
 
 .btn-primary {

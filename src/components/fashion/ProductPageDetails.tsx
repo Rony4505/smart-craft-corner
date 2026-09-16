@@ -37,7 +37,7 @@ export function ProductPageDetails({
       </nav>
 
       {product.offerActive && product.offerLabel ? (
-        <span className="mt-3 inline-flex rounded-full bg-[linear-gradient(135deg,#2b1d19,#8b6456)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-[#f4d4c2]">
+        <span className="mt-3 inline-flex rounded-full bg-[linear-gradient(135deg,#c2186b,#e91e8c)] px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-white">
           {product.offerLabel} · {product.offerDiscountPercent}%
           {locale === "bn" ? " ছাড়" : " off"}
         </span>
@@ -47,12 +47,12 @@ export function ProductPageDetails({
         </span>
       ) : null}
 
-      <h1 className="mt-3 font-[family-name:var(--font-display)] text-3xl font-bold leading-tight text-[#e8eef7] md:text-4xl">
+      <h1 className="mt-3 font-[family-name:var(--font-display)] text-3xl font-bold leading-tight text-[#4a1235] md:text-4xl">
         {title}
       </h1>
 
       <div className="mt-4 flex items-center gap-3">
-        <p className="text-3xl font-bold text-[#8f624e]">{formatBdt(price)}</p>
+        <p className="text-3xl font-bold text-[#c2186b]">{formatBdt(price)}</p>
         {originalPrice ? (
           <p className="text-sm text-[#a0897d] line-through">{formatBdt(originalPrice)}</p>
         ) : null}
@@ -62,8 +62,8 @@ export function ProductPageDetails({
         <ProductOrderPanel product={product} />
       </div>
 
-      <p className="mt-8 text-base leading-8 text-[#b8c9de]">{description}</p>
-      <p className="mt-3 text-sm text-[#8eb4d9]">{product.fabric}</p>
+      <p className="mt-8 text-base leading-8 text-[#7a3a5c]">{description}</p>
+      <p className="mt-3 text-sm text-[#c2186b]">{product.fabric}</p>
     </div>
   );
 }

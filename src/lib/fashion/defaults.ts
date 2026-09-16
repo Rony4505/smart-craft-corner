@@ -157,8 +157,9 @@ export const defaultSettings: StoreSettings = {
   vipMinSpend: 20000,
   vipDiscountPercent: 5,
   adminUsername: "founder",
-  adminEmail: "hello@smartcraftcorner.com",
-  adminPhone: "8801700000000",
+  adminEmail: "",
+  adminPhone: "",
+  adminRecoveryEmail: "",
 };
 
 export const defaultCategories: Category[] = [

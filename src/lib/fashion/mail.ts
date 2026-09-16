@@ -1,4 +1,4 @@
-export type OtpMailPurpose = "register" | "admin-login";
+export type OtpMailPurpose = "register" | "admin-login" | "admin-reset";
 
 export function otpFromAddress(): string {
   return (
@@ -26,21 +26,21 @@ export function buildOtpEmail(input: {
   const isRegister = input.purpose === "register";
   const subject = isRegister
     ? `Noorzaa OTP: ${input.code}`
-    : `Noorzaa admin OTP: ${input.code}`;
-  const heading = isRegister ? "অ্যাকাউন্ট ভেরিফিকেশন" : "অ্যাডমিন লগইন";
+    : `Noorzaa password recovery: ${input.code}`;
+  const heading = isRegister ? "অ্যাকাউন্ট ভেরিফিকেশন" : "পাসওয়ার্ড রিকভারি";
   const intro = isRegister
     ? "Noorzaa-এ নতুন অ্যাকাউন্ট তৈরির জন্য আপনার OTP কোড:"
-    : "Noorzaa অ্যাডমিন লগইনের জন্য আপনার OTP কোড:";
+    : "Noorzaa অ্যাডমিন পাসওয়ার্ড রিসেটের জন্য আপনার OTP কোড:";
   const html = `<!DOCTYPE html>
 <html lang="bn">
-  <body style="margin:0;padding:24px;background:#0a1628;font-family:Arial,sans-serif;color:#e8eef7;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;margin:0 auto;background:#122d52;border-radius:16px;padding:28px;">
+  <body style="margin:0;padding:24px;background:#fff5f8;font-family:Arial,sans-serif;color:#4a1235;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;margin:0 auto;background:#ffffff;border:1px solid #f3c6dc;border-radius:16px;padding:28px;">
       <tr><td>
-        <p style="margin:0 0 8px;letter-spacing:0.28em;font-size:11px;color:#b8c9de;">NOORZAA</p>
-        <h1 style="margin:0 0 16px;font-size:22px;color:#ffffff;">${heading}</h1>
-        <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#d5e3f5;">${intro}</p>
-        <p style="margin:0 0 20px;font-size:32px;letter-spacing:0.28em;font-weight:700;color:#ffffff;">${input.code}</p>
-        <p style="margin:0;font-size:13px;line-height:1.6;color:#b8c9de;">এই কোড ১০ মিনিটের জন্য বৈধ। আপনি এই অ্যাকাউন্ট তৈরি না করলে ইমেইলটি উপেক্ষা করুন।</p>
+        <p style="margin:0 0 8px;letter-spacing:0.28em;font-size:11px;color:#c2186b;">NOORZAA</p>
+        <h1 style="margin:0 0 16px;font-size:22px;color:#8e1050;">${heading}</h1>
+        <p style="margin:0 0 16px;font-size:15px;line-height:1.6;color:#7a3a5c;">${intro}</p>
+        <p style="margin:0 0 20px;font-size:32px;letter-spacing:0.28em;font-weight:700;color:#c2186b;">${input.code}</p>
+        <p style="margin:0;font-size:13px;line-height:1.6;color:#9a5a78;">এই কোড ১০ মিনিটের জন্য বৈধ। আপনি এই অনুরোধ না করলে ইমেইলটি উপেক্ষা করুন।</p>
       </td></tr>
     </table>
   </body>
