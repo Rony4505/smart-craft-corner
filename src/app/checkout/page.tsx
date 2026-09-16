@@ -213,8 +213,8 @@ export default function CheckoutPage() {
                     onClick={() => setForm((c) => ({ ...c, paymentMethod: value as CheckoutForm["paymentMethod"] }))}
                     className={`rounded-[1.25rem] border px-4 py-4 text-sm font-semibold transition ${
                       form.paymentMethod === value
-                        ? "border-[#2b1d19] bg-[#2b1d19] text-white"
-                        : "border-black/8 bg-[#faf4f0] text-[#5b4339]"
+                        ? "border-[#c2186b] bg-[linear-gradient(135deg,#c2186b,#e91e8c)] text-white"
+                        : "border-[#f3c6dc] bg-[#fff5f8] text-[#8e1050]"
                     }`}
                   >
                     {label}
@@ -224,7 +224,7 @@ export default function CheckoutPage() {
             </div>
           </div>
 
-          <aside className="rounded-[2rem] border border-black/6 bg-[#2b1d19] p-6 text-white shadow-[0_30px_90px_rgba(48,27,20,0.18)]">
+          <aside className="rounded-[2rem] border border-[#f3c6dc] bg-[linear-gradient(165deg,#8e1050,#c2186b)] p-6 text-white shadow-[0_30px_90px_rgba(194,24,107,0.18)]">
             <h2 className="font-[family-name:var(--font-display)] text-3xl font-bold">{copy.cart.summary}</h2>
             <div className="mt-6 space-y-4">
               {items.map((item) => (

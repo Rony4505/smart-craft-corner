@@ -30,25 +30,25 @@ export function ContactPageClient() {
   }
 
   return (
-    <section className="mx-auto max-w-7xl px-5 py-14 text-[#e8eef7] md:px-8 md:py-20">
+    <section className="mx-auto max-w-7xl px-5 py-14 text-[#4a1235] md:px-8 md:py-20">
       <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr]">
         <div>
           <p className={localeEyebrowOnDarkClass(locale)}>
             {fc.contact.label}
           </p>
-          <h1 className="mt-3 font-[family-name:var(--font-display)] text-5xl font-bold text-white md:text-6xl">
+          <h1 className="mt-3 font-[family-name:var(--font-display)] text-5xl font-bold text-[#4a1235] md:text-6xl">
             {fc.contact.title}
           </h1>
-          <div className="mt-8 space-y-4 text-base leading-8 text-[#b8c9de]">
+          <div className="mt-8 space-y-4 text-base leading-8 text-[#7a3a5c]">
             <p>
               {fc.contact.whatsapp}:{" "}
-              <a href={`https://wa.me/${whatsapp}`} className="font-semibold text-[#8eb4d9]">
+              <a href={`https://wa.me/${whatsapp}`} className="font-semibold text-[#c2186b]">
                 {phone}
               </a>
             </p>
             <p>
               {fc.contact.email}:{" "}
-              <a href={`mailto:${email}`} className="font-semibold text-[#8eb4d9]">
+              <a href={`mailto:${email}`} className="font-semibold text-[#c2186b]">
                 {email}
               </a>
             </p>

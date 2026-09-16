@@ -18,7 +18,7 @@ export default function Icon() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            background: "linear-gradient(145deg, #2b1d19 0%, #5c3d34 100%)",
+            background: "linear-gradient(145deg, #8e1050 0%, #c2186b 100%)",
             borderRadius: 14,
           }}
         >
@@ -30,14 +30,14 @@ export default function Icon() {
               width: 46,
               height: 46,
               borderRadius: 999,
-              background: "#f4d4c2",
-              color: "#2b1d19",
+              background: "#fff5f8",
+              color: "#c2186b",
               fontSize: 28,
               fontWeight: 800,
               letterSpacing: -1,
             }}
           >
-            S
+            N
           </div>
         </div>
       ),

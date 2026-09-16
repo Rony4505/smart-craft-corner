@@ -45,7 +45,7 @@ export function AccountOtpPin({
           ref={(node) => {
             refs.current[index] = node;
           }}
-          className="h-14 w-full max-w-14 rounded-2xl border border-[#d4b896] bg-white text-center font-[family-name:var(--font-display)] text-2xl font-bold tracking-widest text-[#122d52] outline-none transition focus:border-[#122d52] focus:shadow-[0_0_0_3px_rgba(18,45,82,0.15)]"
+          className="h-14 w-full max-w-14 rounded-2xl border border-[#f3c6dc] bg-white text-center font-[family-name:var(--font-display)] text-2xl font-bold tracking-widest text-[#8e1050] outline-none transition focus:border-[#c2186b] focus:shadow-[0_0_0_3px_rgba(194,24,107,0.15)]"
           inputMode="numeric"
           autoComplete={index === 0 ? "one-time-code" : "off"}
           maxLength={1}

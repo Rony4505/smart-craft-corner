@@ -6,7 +6,7 @@ import { adminThemes, type AdminTheme } from "./admin-themes";
 
 export function AdminShell({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen bg-[linear-gradient(160deg,#faf6f2_0%,#f5ebe3_45%,#efe4da_100%)] text-[#2b1d19]">
+    <div className="min-h-screen bg-[linear-gradient(160deg,#fff7fa_0%,#fce8f1_45%,#f6d5e8_100%)] text-[#4a1235]">
       <TopLanguageBar />
       <div className="mx-auto max-w-7xl px-5 py-8 pt-14 md:px-8 md:py-10 md:pt-16">{children}</div>
     </div>

@@ -10,6 +10,8 @@ export function AnnouncementBar({ settings }: { settings: StoreSettings }) {
   const text = tSetting(settings, "announcementText", "announcementTextEn", locale, "");
   if (!text.trim()) return null;
   return (
-    <div className="bg-[#2b1d19] px-4 py-2 text-center text-sm text-white/90">{text}</div>
+    <div className="bg-[linear-gradient(90deg,#8e1050,#c2186b,#e91e8c)] px-4 py-2 text-center text-sm text-white">
+      {text}
+    </div>
   );
 }

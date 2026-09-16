@@ -22,7 +22,7 @@ export function ProductCard({ product }: { product: Product }) {
         <div className={`relative ${product.tone}`}>
           <ProductImage src={product.imageUrl} alt={title} className="h-72 rounded-none" />
           {(product.offerActive ? product.offerLabel : product.label) ? (
-            <div className="absolute right-5 top-5 rounded-full bg-[linear-gradient(135deg,#2b1d19,#8b6456)] px-3 py-1 text-xs font-semibold text-[#f4d4c2] shadow-sm">
+            <div className="absolute right-5 top-5 rounded-full bg-[linear-gradient(135deg,#c2186b,#e91e8c)] px-3 py-1 text-xs font-semibold text-white shadow-sm">
               {product.offerActive ? product.offerLabel ?? "অফার" : product.label}
             </div>
           ) : null}

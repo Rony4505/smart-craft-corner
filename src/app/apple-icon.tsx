@@ -18,7 +18,7 @@ export default function AppleIcon() {
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
-            background: "linear-gradient(145deg, #2b1d19 0%, #5c3d34 100%)",
+            background: "linear-gradient(145deg, #8e1050 0%, #c2186b 100%)",
           }}
         >
           <div
@@ -30,12 +30,12 @@ export default function AppleIcon() {
               width: 130,
               height: 130,
               borderRadius: 999,
-              background: "#f4d4c2",
-              color: "#2b1d19",
+              background: "#fff5f8",
+              color: "#c2186b",
             }}
           >
-            <div style={{ fontSize: 72, fontWeight: 800, lineHeight: 1 }}>S</div>
-            <div style={{ fontSize: 18, fontWeight: 700, letterSpacing: 2, marginTop: 4 }}>CC</div>
+            <div style={{ fontSize: 72, fontWeight: 800, lineHeight: 1 }}>N</div>
+            <div style={{ fontSize: 18, fontWeight: 700, letterSpacing: 2, marginTop: 4 }}>NZ</div>
           </div>
         </div>
       ),

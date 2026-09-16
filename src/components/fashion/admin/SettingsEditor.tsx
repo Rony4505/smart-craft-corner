@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { FashionButton } from "@/components/fashion/FashionButton";
+import { PasswordField } from "@/components/fashion/PasswordField";
 import { useFashionCopy } from "@/lib/fashion/use-fashion-copy";
 import type {
   AboutPillar,
@@ -570,7 +571,10 @@ export function SettingsEditor({
 
           <div className="space-y-3 rounded-xl border border-black/6 bg-white/70 p-4">
             <p className="text-xs font-semibold uppercase tracking-wider text-[#9b7766]">
-              Admin login security
+              Admin login & recovery
+            </p>
+            <p className="text-sm text-[#7a5c50]">
+              লগইনে OTP লাগবে না। Forget password-এর জন্য নিজের Gmail সেট করুন।
             </p>
             <Field label="Admin username">
               <input
@@ -579,21 +583,16 @@ export function SettingsEditor({
                 onChange={(e) => patch("adminUsername", e.target.value)}
               />
             </Field>
-            <Field label="Admin Gmail (OTP)">
+            <Field label="Recovery Gmail (forgot password)">
               <input
                 className="field"
                 type="email"
-                value={settings.adminEmail ?? ""}
-                onChange={(e) => patch("adminEmail", e.target.value)}
+                value={settings.adminRecoveryEmail ?? ""}
+                onChange={(e) => patch("adminRecoveryEmail", e.target.value)}
+                placeholder="you@gmail.com"
               />
             </Field>
-            <Field label="Admin phone (OTP)">
-              <input
-                className="field"
-                value={settings.adminPhone ?? ""}
-                onChange={(e) => patch("adminPhone", e.target.value)}
-              />
-            </Field>
+            <AdminPasswordChange />
           </div>
         </div>
       ) : null}
@@ -650,5 +649,63 @@ export function SettingsEditor({
         <FashionButton onClick={onSave}>{fc.admin.settingsSaveAll}</FashionButton>
       </div>
     </div>
+  );
+}
+
+function AdminPasswordChange() {
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    setLoading(true);
+    setError("");
+    setMessage("");
+    const res = await fetch("/api/fashion/admin", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "change-password",
+        currentPassword,
+        newPassword,
+      }),
+    });
+    const data = await res.json().catch(() => ({}));
+    setLoading(false);
+    if (!res.ok) {
+      setError(data.error || "পাসওয়ার্ড আপডেট হয়নি");
+      return;
+    }
+    setMessage("নতুন পাসওয়ার্ড সেভ হয়েছে");
+    setCurrentPassword("");
+    setNewPassword("");
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-3 border-t border-black/6 pt-3">
+      <p className="text-xs font-semibold uppercase tracking-wider text-[#9b7766]">
+        Change password
+      </p>
+      {error ? <p className="text-sm text-red-700">{error}</p> : null}
+      {message ? <p className="text-sm text-[#2f6b4f]">{message}</p> : null}
+      <PasswordField
+        label="Current password"
+        value={currentPassword}
+        onChange={setCurrentPassword}
+        required
+      />
+      <PasswordField
+        label="New password"
+        value={newPassword}
+        onChange={setNewPassword}
+        required
+      />
+      <FashionButton type="submit" variant="secondary" disabled={loading}>
+        {loading ? "..." : "Update password"}
+      </FashionButton>
+    </form>
   );
 }

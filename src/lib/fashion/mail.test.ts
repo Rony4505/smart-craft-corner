@@ -20,6 +20,14 @@ describe("buildOtpEmail", () => {
     assert.match(mail.html, /123456/);
     assert.match(mail.text, /123456/);
   });
+
+  it("uses magenta recovery copy for admin password reset", () => {
+    const mail = buildOtpEmail({ code: "654321", purpose: "admin-reset" });
+    assert.match(mail.subject, /654321/);
+    assert.match(mail.html, /#c2186b/);
+    assert.match(mail.html, /পাসওয়ার্ড রিকভারি/);
+    assert.doesNotMatch(mail.html, /অ্যাডমিন লগইন/);
+  });
 });
 
 describe("otp debug vs live", () => {

@@ -88,7 +88,7 @@ export function ChatSupportWidget() {
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
-          className="flex h-14 w-14 items-center justify-center rounded-full bg-[#2b1d19] text-xl text-white shadow-[0_12px_40px_rgba(43,29,25,0.35)] transition hover:scale-105"
+          className="flex h-14 w-14 items-center justify-center rounded-full bg-[linear-gradient(135deg,#c2186b,#e91e8c)] text-xl text-white shadow-[0_12px_40px_rgba(194,24,107,0.35)] transition hover:scale-105"
           aria-label={labels.title}
           aria-expanded={open}
         >

@@ -9,6 +9,7 @@ import { cn } from "@/lib/fashion/cn";
 import { useFashionCopy } from "@/lib/fashion/use-fashion-copy";
 import { copy } from "@/lib/fashion/copy";
 import { LanguageSwitcher } from "@/components/fashion/LanguageSwitcher";
+import { NoorzaaWordmark } from "@/components/fashion/NoorzaaWordmark";
 
 function NavIconButton({
   href,
@@ -157,11 +158,10 @@ export function FashionHeader({ variant = "light" }: { variant?: "light" | "dark
     setSearchOpen(false);
   }
 
-  // Icons sit above the white brand card on dark navy — keep them bright.
   const toolbarActive =
-    "bg-[linear-gradient(135deg,#f0c9a8,#f8e4d4)] text-[#5c3d5e] ring-2 ring-[#f4d4c2]/80 shadow-[0_4px_18px_rgba(240,201,168,0.45)]";
+    "bg-[linear-gradient(135deg,#c2186b,#e91e8c)] text-white ring-2 ring-[#f8b4d4]/80 shadow-[0_4px_18px_rgba(194,24,107,0.35)]";
   const toolbarIdle =
-    "bg-white/12 text-[#e8eef7] ring-1 ring-white/25 hover:bg-white/22 hover:text-white";
+    "bg-white text-[#c2186b] ring-1 ring-[#f3c6dc] hover:bg-[#fff0f6] hover:text-[#8e1050]";
 
   const myProductActive = pathname.startsWith("/track");
   const notificationsHref = loggedIn ? "/account#notifications" : "/account/login";
@@ -287,59 +287,25 @@ export function FashionHeader({ variant = "light" }: { variant?: "light" | "dark
           href="/cart"
           label={fc.nav.cart}
           active={pathname.startsWith("/cart") || pathname.startsWith("/checkout")}
-          activeClass="bg-[linear-gradient(135deg,#9d6b8a,#c9a0b8)] text-white shadow-md hover:opacity-90"
-          idleClass="bg-[linear-gradient(135deg,#9d6b8a,#c9a0b8)] text-white shadow-md hover:opacity-90"
+          activeClass="bg-[linear-gradient(135deg,#c2186b,#e91e8c)] text-white shadow-md hover:opacity-90"
+          idleClass="bg-[linear-gradient(135deg,#c2186b,#e91e8c)] text-white shadow-md hover:opacity-90"
           badge={itemCount}
         >
           <CartIcon />
         </NavIconButton>
       </div>
 
-      {/* White card: ONLY large unique Noorzaa + stronger feminine watermark */}
-      <div className="relative overflow-hidden rounded-[2rem] border border-[#e8d4c4]/55 bg-white px-6 py-9 shadow-[0_18px_60px_rgba(122,85,128,0.1)] md:px-10 md:py-11">
+      <div className="relative overflow-hidden rounded-[2rem] border border-[#f3c6dc]/80 bg-white px-6 py-8 shadow-[0_18px_60px_rgba(194,24,107,0.1)] md:px-10 md:py-10">
         <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden rounded-[2rem]">
-          <svg
-            className="absolute -right-2 top-1/2 h-[155%] w-auto -translate-y-1/2 opacity-[0.24]"
-            viewBox="0 0 220 280"
-            fill="none"
-          >
-            <path
-              d="M110 28c-28 8-48 34-48 66 0 22 10 40 26 52-18 10-30 30-30 54 0 38 34 68 76 68s76-30 76-68c0-24-12-44-30-54 16-12 26-30 26-52 0-32-20-58-48-66-8 22-28 36-48 36s-40-14-48-36Z"
-              fill="#8f4e6a"
-            />
-            <path
-              d="M110 42c18 0 34-10 42-26 6 20 22 34 42 38-16 10-28 28-28 48 0 20 10 36 26 46-14 8-24 24-24 42 0 28-26 50-58 50s-58-22-58-50c0-18-10-34-24-42 16-10 26-26 26-46 0-20-12-38-28-48 20-4 36-18 42-38 8 16 24 26 42 26Z"
-              fill="#c9859a"
-              opacity="0.75"
-            />
-            <circle cx="48" cy="210" r="12" fill="#b76e79" opacity="0.7" />
-            <circle cx="172" cy="210" r="12" fill="#b76e79" opacity="0.7" />
-            <path
-              d="M36 232c22-20 44-20 66 0M118 232c22-20 44-20 66 0"
-              stroke="#8f4e6a"
-              strokeWidth="3.5"
-              strokeLinecap="round"
-              opacity="0.65"
-            />
-            <path
-              d="M110 150c8-18 28-22 38-10-14 4-22 16-22 28 12 0 24 8 28 20-16-2-28 6-34 18-2-14-12-26-28-28 10-8 14-20 18-28Z"
-              fill="#d4a0b0"
-              opacity="0.6"
-            />
-          </svg>
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_12%_0%,rgba(201,133,154,0.32),transparent_52%),radial-gradient(ellipse_at_90%_100%,rgba(143,78,106,0.22),transparent_48%)]" />
-          <p className="absolute bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap font-[family-name:var(--font-display)] text-[10px] font-semibold tracking-[0.38em] text-[#8f4e6a]/60 uppercase md:text-xs">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_12%_0%,rgba(233,30,140,0.16),transparent_52%),radial-gradient(ellipse_at_90%_100%,rgba(194,24,107,0.12),transparent_48%)]" />
+          <p className="absolute bottom-3 left-1/2 -translate-x-1/2 whitespace-nowrap font-[family-name:var(--font-display)] text-[10px] font-semibold tracking-[0.38em] text-[#c2186b]/55 uppercase md:text-xs">
             for her · নারীর ফ্যাশন
           </p>
         </div>
 
-        <div className="relative z-10 flex min-h-[5.75rem] items-center justify-center md:min-h-[6.75rem]">
-          <p
-            className="select-none bg-[linear-gradient(115deg,#3d2a3c_0%,#8f4e6a_38%,#5c3d5e_70%,#3d2a3c_100%)] bg-clip-text text-center font-[family-name:var(--font-display)] text-[2.35rem] font-bold tracking-[0.3em] text-transparent uppercase md:text-5xl lg:text-6xl"
-            aria-label={brand}
-          >
-            {brand}
-          </p>
+        <div className="relative z-10 flex min-h-[5.25rem] items-center justify-center md:min-h-[6.25rem]">
+          <NoorzaaWordmark priority className="max-w-[18rem] sm:max-w-[24rem] md:max-w-[32rem] lg:max-w-[38rem]" />
+          <span className="sr-only">{brand}</span>
         </div>
       </div>
 

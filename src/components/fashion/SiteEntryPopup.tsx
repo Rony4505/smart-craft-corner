@@ -46,20 +46,20 @@ export function SiteEntryPopup({ offers }: { offers?: Product[] }) {
 
   return (
     <div className="fixed inset-0 z-[560] flex items-center justify-center bg-black/45 p-4 backdrop-blur-sm">
-      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[2rem] border border-[#d4b896]/30 bg-[linear-gradient(165deg,#fffaf7,#f5e8dc)] p-6 shadow-2xl">
+      <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[2rem] border border-[#f3c6dc] bg-[linear-gradient(165deg,#fff7fa,#fce8f1)] p-6 shadow-2xl">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#9b7766]">
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#c2186b]">
               {copy.brand}
             </p>
-            <h2 className="mt-2 font-[family-name:var(--font-display)] text-3xl font-bold text-[#2b1d19]">
+            <h2 className="mt-2 font-[family-name:var(--font-display)] text-3xl font-bold text-[#8e1050]">
               {copy.offers.banner}
             </h2>
           </div>
           <button
             type="button"
             onClick={() => setOpen(false)}
-            className="rounded-full bg-[#2b1d19]/8 px-3 py-1 text-sm font-semibold text-[#5b4339]"
+            className="rounded-full bg-[#c2186b]/10 px-3 py-1 text-sm font-semibold text-[#8e1050]"
           >
             {copy.actions.close}
           </button>
@@ -78,8 +78,8 @@ export function SiteEntryPopup({ offers }: { offers?: Product[] }) {
                 style={{ backgroundImage: `url(${product.imageUrl})` }}
               />
               <div>
-                <p className="font-semibold text-[#2b1d19]">{product.nameBn}</p>
-                <p className="text-sm text-[#8f624e]">
+                <p className="font-semibold text-[#4a1235]">{product.nameBn}</p>
+                <p className="text-sm text-[#c2186b]">
                   {product.offerLabel ?? "অফার"}
                   {product.offerDiscountPercent ? ` · ${product.offerDiscountPercent}% ছাড়` : ""}
                 </p>
