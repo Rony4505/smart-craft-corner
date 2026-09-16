@@ -230,6 +230,31 @@ export function SettingsEditor({
             onBn={(v) => patch("freeShippingNote", v)}
             onEn={(v) => patch("freeShippingNoteEn", v)}
           />
+          <div className="space-y-3 rounded-xl border border-black/6 bg-white/70 p-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-[#9b7766]">
+              Admin login & recovery
+            </p>
+            <p className="text-sm text-[#7a5c50]">
+              লগইনে OTP লাগবে না। Forget password-এর জন্য নিজের Gmail সেট করুন।
+            </p>
+            <Field label="Admin username">
+              <input
+                className="field"
+                value={settings.adminUsername ?? "founder"}
+                onChange={(e) => patch("adminUsername", e.target.value)}
+              />
+            </Field>
+            <Field label="Recovery Gmail (forgot password)">
+              <input
+                className="field"
+                type="email"
+                value={settings.adminRecoveryEmail ?? ""}
+                onChange={(e) => patch("adminRecoveryEmail", e.target.value)}
+                placeholder="you@gmail.com"
+              />
+            </Field>
+            <AdminPasswordChange />
+          </div>
         </div>
       ) : null}
 
@@ -567,32 +592,6 @@ export function SettingsEditor({
                 onChange={(e) => patch("vipDiscountPercent", Number(e.target.value) || 0)}
               />
             </Field>
-          </div>
-
-          <div className="space-y-3 rounded-xl border border-black/6 bg-white/70 p-4">
-            <p className="text-xs font-semibold uppercase tracking-wider text-[#9b7766]">
-              Admin login & recovery
-            </p>
-            <p className="text-sm text-[#7a5c50]">
-              লগইনে OTP লাগবে না। Forget password-এর জন্য নিজের Gmail সেট করুন।
-            </p>
-            <Field label="Admin username">
-              <input
-                className="field"
-                value={settings.adminUsername ?? "founder"}
-                onChange={(e) => patch("adminUsername", e.target.value)}
-              />
-            </Field>
-            <Field label="Recovery Gmail (forgot password)">
-              <input
-                className="field"
-                type="email"
-                value={settings.adminRecoveryEmail ?? ""}
-                onChange={(e) => patch("adminRecoveryEmail", e.target.value)}
-                placeholder="you@gmail.com"
-              />
-            </Field>
-            <AdminPasswordChange />
           </div>
         </div>
       ) : null}
