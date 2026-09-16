@@ -64,8 +64,10 @@ export async function FashionHomePage() {
             </div>
           ) : null}
 
-          {/* Image 1: hero title/CTAs replaced by admin categories */}
-          <HomeCategoryShowcase categories={categories} />
+          {/* Image 1: hero title/CTAs replaced by circular top categories */}
+          <Suspense fallback={null}>
+            <HomeCategoryShowcase categories={categories} />
+          </Suspense>
         </div>
       </section>
 

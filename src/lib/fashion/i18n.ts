@@ -45,7 +45,7 @@ export const fashionI18n = {
       close: "বন্ধ করুন",
     },
     home: {
-      categoryTitle: "ক্যাটাগরি",
+      categoryTitle: "টপ ক্যাটাগরি",
       allProducts: "সব প্রোডাক্ট",
       categoryHint: "ক্যাটাগরি বেছে নিন — নিচে সেই অনুযায়ী প্রোডাক্ট দেখাবে",
       newProducts: "নতুন প্রোডাক্ট",
@@ -226,7 +226,7 @@ export const fashionI18n = {
       close: "Close",
     },
     home: {
-      categoryTitle: "Category",
+      categoryTitle: "TOP CATEGORIES",
       allProducts: "All Products",
       categoryHint: "Pick a category to browse products below",
       newProducts: "New Products",

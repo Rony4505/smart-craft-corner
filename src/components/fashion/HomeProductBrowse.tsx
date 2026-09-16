@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { CategoryCircle, CategoryCircleRow } from "@/components/fashion/CategoryCircle";
 import { ProductGrid } from "@/components/fashion/ProductGrid";
 import { VisibleSelect } from "@/components/fashion/VisibleSelect";
 import { getEffectivePrice } from "@/lib/fashion/pricing";
@@ -228,32 +229,23 @@ export function HomeProductBrowse({
             />
           </div>
 
-          <div className="mt-6 flex gap-2 overflow-x-auto pb-1">
-            <button
-              type="button"
-              onClick={() => selectCategory("")}
-              className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition ${
-                !categorySlug
-                  ? "bg-[#8f624e] text-white shadow-md"
-                  : "border-2 border-[#8f624e]/50 bg-[#f3ebe4] text-[#1c1412] hover:bg-[#ebe0d6]"
-              }`}
-            >
-              {fc.search.allCategories}
-            </button>
-            {categories.map((cat) => (
-              <button
-                key={cat.slug}
-                type="button"
-                onClick={() => selectCategory(cat.slug)}
-                className={`shrink-0 rounded-full px-4 py-2 text-sm font-semibold transition ${
-                  categorySlug === cat.slug
-                    ? "bg-[#8f624e] text-white shadow-md"
-                    : "border-2 border-[#8f624e]/50 bg-[#f3ebe4] text-[#1c1412] hover:bg-[#ebe0d6]"
-                }`}
-              >
-                {cat.titleBn || cat.title}
-              </button>
-            ))}
+          <div className="mt-6">
+            <CategoryCircleRow>
+              <CategoryCircle
+                label={fc.search.allCategories}
+                selected={!categorySlug}
+                onClick={() => selectCategory("")}
+              />
+              {categories.map((cat) => (
+                <CategoryCircle
+                  key={cat.slug}
+                  label={locale === "en" ? cat.title || cat.titleBn : cat.titleBn || cat.title}
+                  imageUrl={cat.imageUrl}
+                  selected={categorySlug === cat.slug}
+                  onClick={() => selectCategory(cat.slug)}
+                />
+              ))}
+            </CategoryCircleRow>
           </div>
 
           <div className="mt-8">
