@@ -92,6 +92,7 @@ export function RegisterForm() {
 
   async function sendOtp(event: FormEvent) {
     event.preventDefault();
+    event.stopPropagation();
     setLoading(true);
     setError("");
     const res = await fetch("/api/fashion/auth", {
@@ -113,6 +114,7 @@ export function RegisterForm() {
 
   async function verifyOtp(event: FormEvent) {
     event.preventDefault();
+    event.stopPropagation();
     setLoading(true);
     setError("");
     const res = await fetch("/api/fashion/auth", {
@@ -143,6 +145,8 @@ export function RegisterForm() {
 
         {step === "form" ? (
           <form
+            method="post"
+            action="/account/register"
             onSubmit={sendOtp}
             className="mt-8 space-y-4 rounded-[2rem] border border-black/6 bg-white p-6 shadow-[0_24px_80px_rgba(48,27,20,0.06)]"
           >
@@ -159,6 +163,8 @@ export function RegisterForm() {
                 <input
                   className="field mt-2"
                   type={type}
+                  name={key}
+                  autoComplete={key === "email" ? "email" : key === "phone" ? "tel" : "name"}
                   value={form[key]}
                   onChange={(e) => setForm((c) => ({ ...c, [key]: e.target.value }))}
                   required
@@ -169,6 +175,7 @@ export function RegisterForm() {
               label={copy.form.password}
               value={form.password}
               onChange={(v) => setForm((c) => ({ ...c, password: v }))}
+              autoComplete="new-password"
               required
             />
             <div>
@@ -204,6 +211,8 @@ export function RegisterForm() {
           </form>
         ) : (
           <form
+            method="post"
+            action="/account/register"
             onSubmit={verifyOtp}
             className="mt-8 space-y-4 rounded-[2rem] border border-black/6 bg-white p-6 shadow-[0_24px_80px_rgba(48,27,20,0.06)]"
           >
@@ -225,6 +234,8 @@ export function RegisterForm() {
               <span className="text-sm text-[#9b7766]">OTP কোড</span>
               <input
                 className="field mt-2 tracking-[0.35em]"
+                name="otp"
+                autoComplete="one-time-code"
                 value={otp}
                 onChange={(e) => setOtp(e.target.value)}
                 required

@@ -11,6 +11,7 @@ export function PasswordField({
   id,
   placeholder,
   className = "",
+  autoComplete = "current-password",
 }: {
   value: string;
   onChange: (value: string) => void;
@@ -19,6 +20,7 @@ export function PasswordField({
   id?: string;
   placeholder?: string;
   className?: string;
+  autoComplete?: string;
 }) {
   const [show, setShow] = useState(false);
 
@@ -34,7 +36,8 @@ export function PasswordField({
           onChange={(e) => onChange(e.target.value)}
           required={required}
           placeholder={placeholder}
-          autoComplete="current-password"
+          autoComplete={autoComplete}
+          name={autoComplete === "new-password" ? "new-password" : "password"}
         />
         <button
           type="button"
