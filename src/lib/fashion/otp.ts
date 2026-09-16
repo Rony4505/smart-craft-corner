@@ -54,9 +54,9 @@ export async function issueOtp(input: {
     expiresAt,
   };
   await writeAll(all);
-  console.info(
-    `[otp] ${input.purpose} → ${input.channel}:${input.target} code=${code}`,
-  );
+  if (process.env.NODE_ENV !== "production" || process.env.OTP_DEBUG === "1") {
+    console.info(`[otp] ${input.purpose} → ${input.channel}:${input.target}`);
+  }
   return { code, expiresAt };
 }
 

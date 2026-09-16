@@ -5,6 +5,7 @@ import {
   isFashionAdminAuthenticated,
 } from "@/lib/fashion/customer-auth";
 import { issueOtp, verifyOtp } from "@/lib/fashion/otp";
+import { deliverOtp } from "@/lib/fashion/mail";
 import {
   getStoreSettings,
   verifyFashionAdminCredentials,
@@ -54,15 +55,34 @@ export async function POST(request: Request) {
       channel,
       target,
     });
+    let delivery: { delivered: boolean; debugOtp?: string };
+    try {
+      delivery = await deliverOtp({
+        channel,
+        target,
+        code,
+        purpose: "admin-login",
+      });
+    } catch (error) {
+      return NextResponse.json(
+        {
+          error:
+            error instanceof Error
+              ? error.message
+              : "Gmail-এ OTP পাঠানো যায়নি।",
+        },
+        { status: 502 },
+      );
+    }
     return NextResponse.json({
       ok: true,
       channel,
+      delivered: delivery.delivered,
       targetHint:
         channel === "email"
           ? target.replace(/(.{2}).+(@.+)/, "$1***$2")
           : `***${target.slice(-4)}`,
-      // Demo/dev: return OTP so verification works without SMS/SMTP
-      debugOtp: code,
+      ...(delivery.debugOtp ? { debugOtp: delivery.debugOtp } : {}),
     });
   }
 

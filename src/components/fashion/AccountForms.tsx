@@ -86,6 +86,7 @@ export function RegisterForm() {
   const [step, setStep] = useState<"form" | "otp">("form");
   const [otp, setOtp] = useState("");
   const [debugOtp, setDebugOtp] = useState("");
+  const [targetHint, setTargetHint] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -105,7 +106,8 @@ export function RegisterForm() {
       return;
     }
     setDebugOtp(data.debugOtp || "");
-    setOtp(String(data.debugOtp || ""));
+    setOtp(data.debugOtp ? String(data.debugOtp) : "");
+    setTargetHint(data.targetHint || form.email);
     setStep("otp");
   }
 
@@ -207,14 +209,18 @@ export function RegisterForm() {
           >
             {error ? <p className="text-sm text-red-700">{error}</p> : null}
             <p className="text-sm text-[#6f554a]">
-              {channel === "email" ? "ইমেইল" : "ফোন"}-এ OTP পাঠানো হয়েছে। কোডটি লিখুন।
+              {channel === "email"
+                ? `${targetHint || "আপনার Gmail"}-এ OTP পাঠানো হয়েছে। ইনবক্স ও স্প্যাম ফোল্ডার চেক করুন।`
+                : "ফোন-এ OTP পাঠানো হয়েছে। কোডটি লিখুন।"}
             </p>
             {debugOtp ? (
               <p className="rounded-xl border border-[#e8cc80] bg-[#fffbf0] px-4 py-3 text-center text-lg font-bold tracking-[0.35em] text-[#6b5420]">
                 {debugOtp}
               </p>
             ) : null}
-            <p className="text-xs text-[#9b7766]">উপরের OTP কোডটি নিচে লিখুন</p>
+            <p className="text-xs text-[#9b7766]">
+              {debugOtp ? "উপরের OTP কোডটি নিচে লিখুন" : "Gmail থেকে পাওয়া ৬ সংখ্যার কোডটি লিখুন"}
+            </p>
             <label className="block">
               <span className="text-sm text-[#9b7766]">OTP কোড</span>
               <input
