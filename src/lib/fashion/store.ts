@@ -32,6 +32,7 @@ import {
 } from "./category-match";
 import { definedEntries, resolvePersistedCoupons, syncBannersForProduct } from "./promo-visibility";
 import { clampProductImageScrollSeconds } from "./product-display";
+import { getProductImages } from "./product-images";
 
 function defaultAdminPassword(): string {
   // Do not fall back to BloodLink ADMIN_PASSWORD — that locked founders out on shared Railway.
@@ -433,6 +434,7 @@ function resolveProductPrice(input: ProductInput, settings: StoreSettings): Prod
   const stock = input.stock ?? 0;
   const pricingMode = input.pricingMode ?? "manual";
   const price = (input.price ?? 0) > 0 ? input.price! : basePrice;
+  const gallery = getProductImages(input);
   return {
     id,
     slug: buildProductSlug(
@@ -452,7 +454,8 @@ function resolveProductPrice(input: ProductInput, settings: StoreSettings): Prod
     sizes: input.sizes,
     colors: input.colors,
     tone: input.tone,
-    imageUrl: input.imageUrl,
+    imageUrl: gallery[0] ?? "",
+    imageUrls: gallery,
     stock,
     featured: input.featured,
     inStock: stock > 0,

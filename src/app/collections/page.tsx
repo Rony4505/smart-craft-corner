@@ -22,8 +22,8 @@ export default async function CollectionsPage() {
           </h1>
         </div>
 
-        <div className="mt-10 rounded-[1.75rem] bg-[#f4f5f7] px-4 py-8 md:px-8">
-          <h2 className="mb-5 text-lg font-extrabold tracking-wide text-[#1f1f1f]">টপ ক্যাটাগরি</h2>
+        <div className="mt-10">
+          <h2 className="mb-5 text-lg font-extrabold tracking-wide text-[#8e1050]">টপ ক্যাটাগরি</h2>
           <CategoryCircleRow>
             {categoryList.map((category) => (
               <CategoryCircle
