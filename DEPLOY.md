@@ -1,47 +1,24 @@
-# BloodLink + Smart craft corner — Online deploy guide
+# Noorzaa — Railway deploy
 
-These are **two separate websites**:
+This repo is **Noorzaa only** (`https://noorzaa.com`). Store data lives on a Railway volume at `/app/data`.
 
-| Site | URL | `APP_MODE` |
-|------|-----|------------|
-| BloodLink BD | https://bloodlinkbd.org | `bloodlink` |
-| Smart craft corner | https://smartcraftcorner.com | `fashion` |
+## Service variables
 
-See **SMARTCRAFT_DEPLOY.md** for creating the Smart craft Railway service + domain.
-
-Donor data must live in **Railway Postgres** (BloodLink service).  
-Fashion store data lives on the **Smart craft** service Volume at `/app/data`.
-
-## BloodLink Railway setup (existing)
-
-1. Open your BloodLink project on https://railway.app
-2. Ensure Postgres is linked and `DATABASE_URL` is set
-3. Set on the **bloodlink** service:
-   - `APP_MODE=bloodlink`
-   - `NEXT_PUBLIC_APP_MODE=bloodlink`
-   - `NEXT_PUBLIC_SITE_URL=https://bloodlinkbd.org`
-4. Volume mount path: `/app/data`
-5. Redeploy and check `https://bloodlinkbd.org/api/health`
-
-### Other env vars (BloodLink)
-
-- `AUTH_SECRET` = long random string (32+ chars)
-- `ADMIN_USERNAME` / `ADMIN_PASSWORD`
-- `DATA_DIR=/app/data`
-
-Owner panel: `https://bloodlinkbd.org/owner-hq-7f3m`
-
-## Smart craft corner
-
-Follow **SMARTCRAFT_DEPLOY.md**.  
-Admin: `https://smartcraftcorner.com/store-admin` (`founder` / `FASHION_ADMIN_PASSWORD`).
-
-## Local development
-
-```bash
-# BloodLink
-APP_MODE=bloodlink npm run dev
-
-# Smart craft corner
-APP_MODE=fashion NEXT_PUBLIC_APP_MODE=fashion NEXT_PUBLIC_SITE_URL=http://localhost:3000 npm run dev
+```text
+NEXT_PUBLIC_SITE_URL=https://noorzaa.com
+FASHION_ADMIN_USERNAME=founder
+FASHION_ADMIN_PASSWORD=<your-password>
+AUTH_SECRET=<long-random-secret>
+DATA_DIR=/app/data
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=Noorzaa <noreply@noorzaa.com>
 ```
+
+1. Connect this GitHub repo to Railway (Dockerfile builder).
+2. Add a **Volume** → mount path `/app/data`.
+3. Custom domain: `noorzaa.com` / `www.noorzaa.com`.
+4. Redeploy and check `https://noorzaa.com/api/health`.
+
+Admin: `https://noorzaa.com/store-admin`.
+
+Do not wipe the volume. Product, order, and customer data is stored in `fashion-store.json`.

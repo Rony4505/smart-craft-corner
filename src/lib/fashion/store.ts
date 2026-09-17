@@ -35,7 +35,6 @@ import { clampProductImageScrollSeconds } from "./product-display";
 import { getProductImages } from "./product-images";
 
 function defaultAdminPassword(): string {
-  // Do not fall back to BloodLink ADMIN_PASSWORD — that locked founders out on shared Railway.
   return process.env.FASHION_ADMIN_PASSWORD?.trim() || "rony4505";
 }
 

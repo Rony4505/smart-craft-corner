@@ -1,10 +1,11 @@
-# Smart craft corner
+# Noorzaa
 
 Luxury womenswear ecommerce for Bangladesh.
 
-**Live:** https://smartcraftcorner.up.railway.app
+**Live:** https://noorzaa.com
 
 ## Admin
+
 - URL: `/store-admin`
 - Username: `founder`
 - Password: set `FASHION_ADMIN_PASSWORD` (default `rony4505`)
@@ -13,16 +14,16 @@ Luxury womenswear ecommerce for Bangladesh.
 
 ```bash
 npm install
-APP_MODE=fashion NEXT_PUBLIC_APP_MODE=fashion npm run dev
+npm run dev
 ```
 
 ## Railway
 
 Set:
-- `APP_MODE=fashion`
-- `NEXT_PUBLIC_APP_MODE=fashion`
-- `NEXT_PUBLIC_SITE_URL=https://smartcraftcorner.up.railway.app`
+
+- `NEXT_PUBLIC_SITE_URL=https://noorzaa.com`
 - `FASHION_ADMIN_PASSWORD=...`
+- `AUTH_SECRET=...`
 - Volume mount: `/app/data`
 
-This repo is separate from BloodLink BD (`bloodlinkbd.org`).
+Store data lives in `fashion-store.json` on the volume. Do not wipe `/app/data`.

@@ -9,14 +9,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: [
-        "/owner-hq-7f3m",
-        "/bl-manage-rony",
-        "/admin",
-        "/api/",
-        "/dashboard",
-        "/notifications",
-      ],
+      disallow: ["/store-admin", "/api/", "/account", "/checkout"],
     },
     sitemap: `${site}/sitemap.xml`,
     host: site,

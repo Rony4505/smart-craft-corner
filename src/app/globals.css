@@ -1,14 +1,14 @@
 @import "tailwindcss";
 
 :root {
-  --ink: #1c1412;
-  --mist: #f7f7f5;
-  --blood: #9b1b2e;
-  --blood-deep: #6e1220;
-  --bloom: #d64550;
+  --ink: #4a1235;
+  --mist: #fff7fa;
+  --blood: #c2186b;
+  --blood-deep: #8e1050;
+  --bloom: #e91e8c;
   --sage: #2f6b4f;
-  --sand: #e8d9cf;
-  --line: rgba(28, 20, 18, 0.12);
+  --sand: #f6d5e8;
+  --line: rgba(74, 18, 53, 0.12);
   --background: var(--mist);
   --foreground: var(--ink);
 }

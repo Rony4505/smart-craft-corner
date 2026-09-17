@@ -41,5 +41,5 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# local donor database (contains personal data)
+# local store database
 /data/
