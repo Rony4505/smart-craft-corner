@@ -8,43 +8,47 @@ import {
   useMemo,
   useState,
 } from "react";
-import { dictionaries, type Dictionary, type Locale } from "./dictionaries";
+
+export type Locale = "bn" | "en";
 
 type LocaleContextValue = {
   locale: Locale;
-  t: Dictionary;
   setLocale: (locale: Locale) => void;
-  toggleLocale: () => void;
 };
 
+const STORAGE_KEY = "noorzaa_locale";
+const LEGACY_STORAGE_KEY = "bloodlink_locale";
+
 const LocaleContext = createContext<LocaleContextValue | null>(null);
+
+function readSavedLocale(): Locale | null {
+  const saved = window.localStorage.getItem(STORAGE_KEY);
+  if (saved === "en" || saved === "bn") return saved;
+  const legacy = window.localStorage.getItem(LEGACY_STORAGE_KEY);
+  if (legacy === "en" || legacy === "bn") return legacy;
+  return null;
+}
 
 export function LocaleProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>("bn");
 
   useEffect(() => {
-    const saved = window.localStorage.getItem("bloodlink_locale");
-    if (saved === "en" || saved === "bn") setLocaleState(saved);
+    const saved = readSavedLocale();
+    if (saved) setLocaleState(saved);
   }, []);
 
   const setLocale = useCallback((next: Locale) => {
     setLocaleState(next);
-    window.localStorage.setItem("bloodlink_locale", next);
+    window.localStorage.setItem(STORAGE_KEY, next);
     document.documentElement.lang = next === "bn" ? "bn" : "en";
   }, []);
-
-  const toggleLocale = useCallback(() => {
-    setLocale(locale === "bn" ? "en" : "bn");
-  }, [locale, setLocale]);
 
   const value = useMemo(
     () => ({
       locale,
-      t: dictionaries[locale],
       setLocale,
-      toggleLocale,
     }),
-    [locale, setLocale, toggleLocale],
+    [locale, setLocale],
   );
 
   return (
