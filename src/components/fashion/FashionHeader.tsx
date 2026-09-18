@@ -198,7 +198,7 @@ export function FashionHeader({ variant = "light" }: { variant?: "light" | "dark
     <div className="relative z-30 space-y-3">
       {/* Icons + language toggle ABOVE the white card */}
       <div className="flex flex-wrap items-center justify-end gap-2 md:gap-2.5">
-        <LanguageSwitcher compact className="mr-0.5" />
+        <LanguageSwitcher compact className="relative z-40 mr-0.5" />
 
         <NavIconButton
           href="/"

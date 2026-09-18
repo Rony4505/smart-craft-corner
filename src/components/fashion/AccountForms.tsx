@@ -7,10 +7,11 @@ import { AccountAuthFrame } from "@/components/fashion/AccountAuthFrame";
 import { AccountOtpPin } from "@/components/fashion/AccountOtpPin";
 import { FashionButton } from "@/components/fashion/FashionButton";
 import { PasswordField } from "@/components/fashion/PasswordField";
-import { copy } from "@/lib/fashion/copy";
+import { useFashionCopy } from "@/lib/fashion/use-fashion-copy";
 
 export function LoginForm() {
   const router = useRouter();
+  const { fc } = useFashionCopy();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -30,7 +31,7 @@ export function LoginForm() {
     setLoading(false);
 
     if (!res.ok) {
-      setError(data.error || "লগইন ব্যর্থ");
+      setError(data.error || fc.account.loginFailed);
       return;
     }
 
@@ -40,14 +41,14 @@ export function LoginForm() {
 
   return (
     <AccountAuthFrame
-      eyebrow="MEMBER ACCESS"
-      title={copy.account.loginTitle}
-      subtitle="Gmail ও পাসওয়ার্ড দিয়ে আপনার Noorzaa প্রোফাইলে ঢুকুন।"
+      eyebrow={fc.account.memberAccess}
+      title={fc.account.loginTitle}
+      subtitle={fc.account.loginSubtitle}
       footer={
         <>
-          অ্যাকাউন্ট নেই?{" "}
+          {fc.account.noAccount}{" "}
           <Link href="/account/register" className="font-semibold text-[#8f624e] underline">
-            নতুন অ্যাকাউন্ট তৈরি করুন
+            {fc.account.createAccount}
           </Link>
         </>
       }
@@ -57,7 +58,7 @@ export function LoginForm() {
           <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
         ) : null}
         <label className="block">
-          <span className="text-sm text-[#9b7766]">Gmail</span>
+          <span className="text-sm text-[#9b7766]">{fc.account.gmail}</span>
           <input
             className="field mt-2"
             type="email"
@@ -69,13 +70,13 @@ export function LoginForm() {
           />
         </label>
         <PasswordField
-          label={copy.form.password}
+          label={fc.account.password}
           value={password}
           onChange={setPassword}
           required
         />
         <FashionButton type="submit" disabled={loading} className="w-full">
-          {loading ? "লগইন হচ্ছে..." : "প্রোফাইলে প্রবেশ"}
+          {loading ? fc.account.loggingIn : fc.account.loginSubmit}
         </FashionButton>
       </form>
     </AccountAuthFrame>
@@ -84,6 +85,7 @@ export function LoginForm() {
 
 export function RegisterForm() {
   const router = useRouter();
+  const { fc } = useFashionCopy();
   const [form, setForm] = useState({ name: "", email: "", phone: "", password: "" });
   const [step, setStep] = useState<"form" | "otp">("form");
   const [otp, setOtp] = useState("");
@@ -108,7 +110,7 @@ export function RegisterForm() {
     const data = await res.json();
     setLoading(false);
     if (!res.ok) {
-      setError(data.error || "OTP পাঠানো যায়নি");
+      setError(data.error || fc.account.otpSendFailed);
       return;
     }
     setDebugOtp(data.debugOtp || "");
@@ -124,7 +126,7 @@ export function RegisterForm() {
     verifying.current = true;
     setLoading(true);
     setError("");
-    setStatus("ভেরিফাই হচ্ছে...");
+    setStatus(fc.account.verifying);
     const res = await fetch("/api/fashion/auth", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -139,10 +141,10 @@ export function RegisterForm() {
       verifying.current = false;
       setLoading(false);
       setStatus("");
-      setError(data.error || "OTP সঠিক নয়");
+      setError(data.error || fc.account.otpWrong);
       return;
     }
-    setStatus("ভেরিফাই সম্পন্ন");
+    setStatus(fc.account.verified);
     router.push("/account");
     router.refresh();
   }
@@ -156,14 +158,14 @@ export function RegisterForm() {
 
   return (
     <AccountAuthFrame
-      eyebrow="NEW MEMBER"
-      title={copy.account.registerTitle}
-      subtitle="OTP সবসময় আপনার Gmail-এ যাবে। ৬ সংখ্যা লেখা শেষ হলেই অ্যাকাউন্ট অটো ভেরিফাই হবে।"
+      eyebrow={fc.account.newMember}
+      title={fc.account.registerTitle}
+      subtitle={fc.account.registerSubtitle}
       footer={
         <>
-          ইতিমধ্যে অ্যাকাউন্ট আছে?{" "}
+          {fc.account.hasAccount}{" "}
           <Link href="/account/login" className="font-semibold text-[#8f624e] underline">
-            লগইন করুন
+            {fc.nav.login}
           </Link>
         </>
       }
@@ -175,9 +177,9 @@ export function RegisterForm() {
           ) : null}
           {(
             [
-              ["name", copy.form.name, "text", "name"],
-              ["email", "Gmail", "email", "email"],
-              ["phone", "ফোন নম্বর", "tel", "tel"],
+              ["name", fc.account.name, "text", "name"],
+              ["email", fc.account.gmail, "email", "email"],
+              ["phone", fc.account.phone, "tel", "tel"],
             ] as const
           ).map(([key, label, type, autoComplete]) => (
             <label key={key} className="block">
@@ -194,17 +196,17 @@ export function RegisterForm() {
             </label>
           ))}
           <PasswordField
-            label={copy.form.password}
+            label={fc.account.password}
             value={form.password}
             onChange={(v) => setForm((c) => ({ ...c, password: v }))}
             autoComplete="new-password"
             required
           />
           <p className="rounded-2xl border border-[#d4b896]/60 bg-[#fff8ee] px-4 py-3 text-sm text-[#6b5420]">
-            ভেরিফিকেশন কোড পাঠানো হবে আপনার Gmail-এ। আলাদা সিলেক্ট করার দরকার নেই।
+            {fc.account.otpSendNote}
           </p>
           <FashionButton type="submit" disabled={loading} className="w-full">
-            {loading ? "Gmail-এ OTP যাচ্ছে..." : "Gmail-এ OTP পাঠান"}
+            {loading ? fc.account.sendingOtp : fc.account.sendOtp}
           </FashionButton>
         </form>
       ) : (
@@ -213,17 +215,17 @@ export function RegisterForm() {
             <p className="rounded-2xl bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>
           ) : null}
           <p className="text-sm leading-6 text-[#6f554a]">
-            {targetHint || "আপনার Gmail"}-এ OTP পাঠানো হয়েছে। ইনবক্স ও স্প্যাম ফোল্ডার চেক করুন।
+            {targetHint || fc.account.yourGmail} — {fc.account.otpSentTo}
           </p>
           {debugOtp ? (
             <p className="rounded-xl border border-[#e8cc80] bg-[#fffbf0] px-4 py-3 text-center text-lg font-bold tracking-[0.35em] text-[#6b5420]">
               {debugOtp}
             </p>
           ) : null}
-          <p className="text-xs text-[#9b7766]">{copy.account.otpHint}</p>
+          <p className="text-xs text-[#9b7766]">{fc.account.otpHint}</p>
           <AccountOtpPin value={otp} onChange={setOtp} disabled={loading} />
           <p className="min-h-6 text-center text-sm font-semibold text-[#c2186b]">
-            {status || (loading ? "ভেরিফাই হচ্ছে..." : "৬ সংখ্যা পূরণ হলেই অটো ভেরিফাই")}
+            {status || (loading ? fc.account.verifying : fc.account.autoVerify)}
           </p>
           <button
             type="button"
@@ -237,7 +239,7 @@ export function RegisterForm() {
               verifying.current = false;
             }}
           >
-            ← ফর্মে ফিরে যান
+            {fc.account.backToForm}
           </button>
         </div>
       )}

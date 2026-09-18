@@ -1,6 +1,9 @@
+"use client";
+
 import type { ReactNode } from "react";
 import { FashionShell } from "@/components/fashion/FashionShell";
 import { NoorzaaWordmark } from "@/components/fashion/NoorzaaWordmark";
+import { useFashionCopy } from "@/lib/fashion/use-fashion-copy";
 
 export function AccountAuthFrame({
   eyebrow,
@@ -15,6 +18,8 @@ export function AccountAuthFrame({
   children: ReactNode;
   footer: ReactNode;
 }) {
+  const { fc } = useFashionCopy();
+
   return (
     <FashionShell>
       <section className="relative overflow-hidden px-4 py-10 md:px-8 md:py-16">
@@ -34,15 +39,15 @@ export function AccountAuthFrame({
                 <NoorzaaWordmark href="/" className="max-w-[12rem]" />
               </div>
               <p className="mt-6 font-[family-name:var(--font-display)] text-4xl font-bold leading-tight text-white">
-                লাক্সারি ফ্যাশন,
+                {fc.account.authSideLine1}
                 <br />
-                নিজস্ব অ্যাকাউন্ট।
+                {fc.account.authSideLine2}
               </p>
             </div>
             <blockquote className="relative mt-10 max-w-sm text-sm leading-7 text-[#fde8f2]">
-              “প্রতিটি অর্ডার, ঠিকানা আর পছন্দ — আপনার প্রোফাইলে এক জায়গায় থাকবে।”
+              “{fc.account.authQuote}”
               <span className="mt-4 block text-[11px] tracking-[0.28em] text-white/75">
-                FOR HER · লাক্সারি ফ্যাশন
+                {fc.account.authTag}
               </span>
             </blockquote>
           </aside>

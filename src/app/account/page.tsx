@@ -5,10 +5,10 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FashionButton } from "@/components/fashion/FashionButton";
 import { FashionShell } from "@/components/fashion/FashionShell";
-import { copy } from "@/lib/fashion/copy";
 import { bangladeshDistricts } from "@/lib/fashion/districts";
 import { formatBdt } from "@/lib/fashion/format";
 import { profileStartsLocked } from "@/lib/fashion/product-display";
+import { useFashionCopy } from "@/lib/fashion/use-fashion-copy";
 import type { FashionOrder, Product, UserNotification } from "@/lib/fashion/types";
 
 type ProfileCustomer = {
@@ -29,6 +29,7 @@ function initials(name: string) {
 
 export default function AccountPage() {
   const router = useRouter();
+  const { locale, fc } = useFashionCopy();
   const fileRef = useRef<HTMLInputElement>(null);
   const [customer, setCustomer] = useState<ProfileCustomer | null>(null);
   const [orders, setOrders] = useState<FashionOrder[]>([]);
@@ -95,12 +96,12 @@ export default function AccountPage() {
     const data = await res.json();
     setSaving(false);
     if (!res.ok) {
-      setError(data.error || "সেভ হয়নি");
+      setError(data.error || fc.account.saveFailed);
       return;
     }
     setCustomer(data.customer);
     setEditing(false);
-    setMessage("প্রোফাইল আপডেট হয়েছে");
+    setMessage(fc.account.saved);
   }
 
   async function uploadAvatar(file: File) {
@@ -112,12 +113,12 @@ export default function AccountPage() {
     const data = await res.json();
     setUploading(false);
     if (!res.ok) {
-      setError(data.error || "ছবি আপলোড হয়নি");
+      setError(data.error || fc.account.photoFailed);
       return;
     }
     setCustomer(data.customer);
     setAvatarFailed(false);
-    setMessage("প্রোফাইল ছবি সেট হয়েছে");
+    setMessage(fc.account.photoSet);
   }
 
   async function markRead(id: string) {
@@ -137,7 +138,7 @@ export default function AccountPage() {
 
   const districts = bangladeshDistricts.filter((d) => d !== "*");
   const memberSince = customer.createdAt
-    ? new Date(customer.createdAt).toLocaleDateString("bn-BD", {
+    ? new Date(customer.createdAt).toLocaleDateString(locale === "en" ? "en-GB" : "bn-BD", {
         year: "numeric",
         month: "long",
         day: "numeric",
@@ -172,7 +173,7 @@ export default function AccountPage() {
                   onClick={() => fileRef.current?.click()}
                   className="absolute -bottom-1 -right-1 rounded-full bg-white px-3 py-1 text-[11px] font-semibold text-[#c2186b]"
                 >
-                  {uploading ? "..." : "ছবি"}
+                  {uploading ? "..." : fc.account.photo}
                 </button>
                 <input
                   ref={fileRef}
@@ -197,7 +198,7 @@ export default function AccountPage() {
               </div>
             </div>
             <FashionButton variant="secondary" onClick={logout}>
-              {copy.nav.logout}
+              {fc.nav.logout}
             </FashionButton>
           </div>
         </div>
@@ -214,7 +215,7 @@ export default function AccountPage() {
           >
             <div className="flex items-center justify-between gap-3">
               <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#8e1050]">
-                প্রোফাইল
+                {fc.account.profile}
               </h2>
               {!editing ? (
                 <button
@@ -222,13 +223,13 @@ export default function AccountPage() {
                   onClick={() => setEditing(true)}
                   className="rounded-full border border-[#f3c6dc] bg-[#fff5f8] px-4 py-1.5 text-sm font-semibold text-[#c2186b] transition hover:bg-[#fde8f2]"
                 >
-                  এডিট
+                  {fc.actions.edit}
                 </button>
               ) : null}
             </div>
             <div className="grid gap-4 sm:grid-cols-2">
               <label className="block">
-                <span className="text-sm text-[#9b7766]">নাম</span>
+                <span className="text-sm text-[#9b7766]">{fc.account.name}</span>
                 <input
                   className="field mt-2"
                   value={customer.name}
@@ -239,7 +240,7 @@ export default function AccountPage() {
                 />
               </label>
               <label className="block">
-                <span className="text-sm text-[#9b7766]">ফোন নম্বর</span>
+                <span className="text-sm text-[#9b7766]">{fc.account.phone}</span>
                 <input
                   className="field mt-2"
                   value={customer.phone}
@@ -250,11 +251,11 @@ export default function AccountPage() {
                 />
               </label>
               <label className="block sm:col-span-2">
-                <span className="text-sm text-[#9b7766]">Gmail</span>
+                <span className="text-sm text-[#9b7766]">{fc.account.gmail}</span>
                 <input className="field mt-2 opacity-80" value={customer.email} readOnly />
               </label>
               <label className="block sm:col-span-2">
-                <span className="text-sm text-[#9b7766]">ঠিকানা</span>
+                <span className="text-sm text-[#9b7766]">{fc.account.address}</span>
                 <textarea
                   className="field mt-2 min-h-24"
                   value={customer.address ?? ""}
@@ -264,14 +265,14 @@ export default function AccountPage() {
                 />
               </label>
               <label className="block sm:col-span-2">
-                <span className="text-sm text-[#9b7766]">জেলা</span>
+                <span className="text-sm text-[#9b7766]">{fc.account.district}</span>
                 <select
                   className="field mt-2"
                   value={customer.district ?? ""}
                   onChange={(e) => setCustomer({ ...customer, district: e.target.value })}
                   disabled={!editing}
                 >
-                  <option value="">জেলা বেছে নিন</option>
+                  <option value="">{fc.account.pickDistrict}</option>
                   {districts.map((district) => (
                     <option key={district} value={district}>
                       {district}
@@ -282,17 +283,17 @@ export default function AccountPage() {
             </div>
             {editing ? (
               <FashionButton type="submit" disabled={saving}>
-                {saving ? "সেভ হচ্ছে..." : copy.account.saveProfile}
+                {saving ? fc.account.saving : fc.account.saveProfile}
               </FashionButton>
             ) : null}
           </form>
 
           <div className="rounded-[2rem] border border-black/6 bg-white p-6 shadow-[0_18px_50px_rgba(48,27,20,0.06)]">
             <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold text-[#8e1050]">
-              {copy.account.notificationsTitle}
+              {fc.account.notificationsTitle}
             </h2>
             {notifications.length === 0 ? (
-              <p className="mt-4 text-sm text-[#6f554a]">{copy.account.noNotifications}</p>
+              <p className="mt-4 text-sm text-[#6f554a]">{fc.account.noNotifications}</p>
             ) : (
               <div className="mt-4 max-h-[28rem] space-y-3 overflow-y-auto">
                 {notifications.slice(0, 10).map((n) => {
@@ -310,7 +311,7 @@ export default function AccountPage() {
                           className="mt-2 text-xs font-semibold text-[#8f624e]"
                           onClick={() => markRead(n.id)}
                         >
-                          পড়েছি
+                          {fc.account.markRead}
                         </button>
                       ) : null}
                     </article>
@@ -323,10 +324,10 @@ export default function AccountPage() {
 
         <div className="mt-8">
           <h2 className="font-[family-name:var(--font-display)] text-3xl font-bold text-[#8e1050]">
-            {copy.account.ordersTitle}
+            {fc.account.ordersTitle}
           </h2>
           {orders.length === 0 ? (
-            <p className="mt-4 text-[#6f554a]">{copy.account.noOrders}</p>
+            <p className="mt-4 text-[#6f554a]">{fc.account.noOrders}</p>
           ) : (
             <div className="mt-6 space-y-4">
               {orders.map((order) => (
@@ -337,11 +338,13 @@ export default function AccountPage() {
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
                       <p className="font-semibold">{order.id}</p>
-                      <p className="text-xs text-[#8b6456]">Tracking: {order.trackingNumber ?? "—"}</p>
+                      <p className="text-xs text-[#8b6456]">
+                        {fc.account.tracking}: {order.trackingNumber ?? "—"}
+                      </p>
                     </div>
                     <div className="text-right">
                       <p className="font-semibold text-[#8f624e]">{formatBdt(order.total)}</p>
-                      <p className="text-xs text-[#6f554a]">{copy.orderStatus[order.status]}</p>
+                      <p className="text-xs text-[#6f554a]">{fc.orderStatus[order.status]}</p>
                     </div>
                   </div>
                   <p className="mt-2 text-sm text-[#6f554a]">
@@ -377,7 +380,7 @@ export default function AccountPage() {
                       href={`/track?tracking=${encodeURIComponent(order.trackingNumber)}`}
                       className="mt-3 inline-block text-xs font-semibold text-[#8f624e]"
                     >
-                      অর্ডার ট্র্যাক করুন →
+                      {fc.account.trackOrder}
                     </Link>
                   ) : null}
                 </article>
